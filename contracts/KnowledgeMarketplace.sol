@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -60,7 +60,7 @@ contract KnowledgeMarketplace is ReentrancyGuard, Ownable {
     event ValidatorSlashed(address indexed validator, uint256 amount);
     event EarningsClaimed(address indexed user, uint256 amount);
 
-    constructor() {}
+    constructor() Ownable(msg.sender) {}
 
     /**
      * Submit a new dataset to the marketplace

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.20;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "./KnowledgeMarketplace.sol";
@@ -43,7 +43,7 @@ contract ReputationSystem is Ownable {
     event UserBlacklisted(address indexed user, string reason);
     event UserWhitelisted(address indexed user);
 
-    constructor(address _marketplaceContract) {
+    constructor(address _marketplaceContract) Ownable(msg.sender) {
         marketplaceContract = _marketplaceContract;
         _initializeBadges();
     }
@@ -198,9 +198,9 @@ contract ReputationSystem is Ownable {
      * Check if user has specific badge
      */
     function _hasBadge(address _user, string memory _badgeName) internal view returns (bool) {
-        string[] memory badges = userBadges[_user];
-        for (uint256 i = 0; i < badges.length; i++) {
-            if (keccak256(bytes(badges[i])) == keccak256(bytes(_badgeName))) {
+        string[] memory userBadgeList = userBadges[_user];
+        for (uint256 i = 0; i < userBadgeList.length; i++) {
+            if (keccak256(bytes(userBadgeList[i])) == keccak256(bytes(_badgeName))) {
                 return true;
             }
         }
