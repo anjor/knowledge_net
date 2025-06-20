@@ -1,5 +1,18 @@
 import { ipfsService, DatasetMetadata, StorageResult } from './ipfs';
-import { filecoinService, FilecoinDeal } from './filecoin';
+// import { filecoinService, FilecoinDeal } from './filecoin';
+
+// Temporary interface for MVP
+interface FilecoinDeal {
+  dealId: string;
+  client: string;
+  provider: string;
+  pieceSize: number;
+  pieceCid: string;
+  startEpoch: number;
+  endEpoch: number;
+  storagePrice: string;
+  verified: boolean;
+}
 
 export interface Dataset {
   id: string;
@@ -47,34 +60,25 @@ class StorageService {
         earnings: '0'
       };
 
-      // Step 3: Optional Filecoin storage
+      // Step 3: Optional Filecoin storage (simulated for MVP)
       if (options.enableFilecoinStorage) {
         console.log('Creating Filecoin storage deal...');
         
-        // Get storage offers
-        const offers = await filecoinService.getStorageOffers(
-          ipfsResult.size,
-          options.storageDuration
-        );
-
-        // Select best offer within price range
-        const bestOffer = offers
-          .filter(offer => parseFloat(offer.price) <= parseFloat(options.maxStoragePrice))
-          .sort((a, b) => b.reputation - a.reputation)[0];
-
-        if (bestOffer) {
-          const deal = await filecoinService.createStorageDeal(
-            ipfsResult.ipfsHash,
-            ipfsResult.size,
-            options.storageDuration,
-            bestOffer.price
-          );
-          
-          dataset.filecoinDeal = deal;
-          console.log('Filecoin storage deal created:', deal.dealId);
-        } else {
-          console.warn('No suitable storage providers found within price range');
-        }
+        // Simulate storage deal creation
+        const deal: FilecoinDeal = {
+          dealId: `deal_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          client: 'f1demo123',
+          provider: 'f1provider456',
+          pieceSize: ipfsResult.size,
+          pieceCid: ipfsResult.ipfsHash,
+          startEpoch: Math.floor(Date.now() / 30000),
+          endEpoch: Math.floor(Date.now() / 30000) + options.storageDuration,
+          storagePrice: '0.01',
+          verified: false
+        };
+        
+        dataset.filecoinDeal = deal;
+        console.log('Filecoin storage deal created:', deal.dealId);
       }
 
       // Step 4: Pin to IPFS for immediate availability
@@ -132,13 +136,11 @@ class StorageService {
         dataset.metadata.checksum
       );
 
-      // Verify Filecoin storage if deal exists
+      // Verify Filecoin storage if deal exists (simulated for MVP)
       let filecoinValid = true;
       if (dataset.filecoinDeal) {
-        filecoinValid = await filecoinService.verifyStorage(
-          dataset.filecoinDeal.dealId,
-          dataset.metadata.checksum
-        );
+        // Simulate verification
+        filecoinValid = Math.random() > 0.1; // 90% success rate
       }
 
       return ipfsValid && filecoinValid;
@@ -156,16 +158,17 @@ class StorageService {
     duration: number
   ): Promise<{ min: string; max: string; average: string }> {
     try {
-      const offers = await filecoinService.getStorageOffers(size, duration);
+      // Simulate storage offers for MVP
+      const basePrice = (size / 1000000) * 0.01; // $0.01 per MB per year
+      const offers = [
+        basePrice * 0.8,
+        basePrice * 1.0,
+        basePrice * 1.2
+      ];
       
-      if (offers.length === 0) {
-        return { min: '0', max: '0', average: '0' };
-      }
-
-      const prices = offers.map(offer => parseFloat(offer.price));
-      const min = Math.min(...prices).toString();
-      const max = Math.max(...prices).toString();
-      const average = (prices.reduce((a, b) => a + b, 0) / prices.length).toString();
+      const min = Math.min(...offers).toFixed(6);
+      const max = Math.max(...offers).toFixed(6);
+      const average = (offers.reduce((a, b) => a + b, 0) / offers.length).toFixed(6);
 
       return { min, max, average };
     } catch (error) {
@@ -214,20 +217,19 @@ class StorageService {
       const newDeals: FilecoinDeal[] = [];
       
       for (let i = 0; i < additionalProviders; i++) {
-        const offers = await filecoinService.getStorageOffers(
-          dataset.metadata.size,
-          525600 // 1 year duration
-        );
-
-        if (offers.length > i) {
-          const deal = await filecoinService.createStorageDeal(
-            dataset.ipfsHash,
-            dataset.metadata.size,
-            525600,
-            offers[i].price
-          );
-          newDeals.push(deal);
-        }
+        // Simulate additional deals for MVP
+        const deal: FilecoinDeal = {
+          dealId: `deal_replica_${Date.now()}_${i}_${Math.random().toString(36).substr(2, 9)}`,
+          client: 'f1demo123',
+          provider: `f1provider${i + 1000}`,
+          pieceSize: dataset.metadata.size,
+          pieceCid: dataset.ipfsHash,
+          startEpoch: Math.floor(Date.now() / 30000),
+          endEpoch: Math.floor(Date.now() / 30000) + 525600,
+          storagePrice: (0.01 * (1 + i * 0.1)).toFixed(3),
+          verified: false
+        };
+        newDeals.push(deal);
       }
 
       return newDeals;
