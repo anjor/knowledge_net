@@ -49,14 +49,8 @@ npm run contracts:deploy
 3. **AI Interface Layer**: APIs and SDKs for AI model integration
 4. **Marketplace Layer**: Web frontend for data providers and consumers
 
-### Target Hackathon Tracks
-- AI & Autonomous Infrastructure (open knowledge graphs, provenance tracking)
-- Decentralized Economies (programmable incentives for data contributors) 
-- Secure, Sovereign Systems (peer-to-peer data sharing infrastructure)
 
-## Development Priorities
+## github rules
 
-1. MVP focusing on data storage and basic economic incentives
-2. AI integration for data querying and validation
-3. User interface for marketplace interactions
-4. Advanced features like reputation systems and governance
+- make small commits
+- don't write verbose commit messages
