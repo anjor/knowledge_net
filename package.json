@@ -10,7 +10,9 @@
     "lint": "next lint",
     "test": "jest",
     "contracts:compile": "hardhat compile",
-    "contracts:deploy": "hardhat run scripts/deploy.js"
+    "contracts:deploy": "hardhat run scripts/deploy.js",
+    "contracts:test-connection": "hardhat run scripts/test-connection.js --network calibration",
+    "contracts:generate-wallet": "hardhat run scripts/generate-wallet.js"
   },
   "keywords": [
     "filecoin",
@@ -27,6 +29,7 @@
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/contracts": "^5.3.0",
     "@textile/hub": "^6.3.4",
+    "dotenv": "^16.5.0",
     "ethers": "^5.8.0",
     "ipfs-http-client": "^60.0.0",
     "next": "^14.0.0",

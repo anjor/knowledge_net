@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Dataset } from '../utils/storage';
+import { Dataset } from '../hooks/useWeb3';
+import { useWeb3 } from '../hooks/useWeb3';
 
 interface DatasetCardProps {
   dataset: Dataset;
-  onPurchase: (datasetId: string) => void;
+  onPurchase?: (datasetId: string) => void;
   connectedWallet: string | null;
 }
 
@@ -13,7 +14,8 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
   connectedWallet 
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [purchasing, setPurchasing] = useState(false);
+  const { purchaseDataset, parsePrice, loading, error } = useWeb3();
 
   const handlePurchase = async () => {
     if (!connectedWallet) {
@@ -21,13 +23,21 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
       return;
     }
 
-    setLoading(true);
+    setPurchasing(true);
     try {
-      onPurchase(dataset.id);
-    } catch (error) {
+      const priceInWei = parsePrice(dataset.price);
+      const txHash = await purchaseDataset(dataset.id, priceInWei);
+      
+      alert(`Purchase successful! Transaction: ${txHash}`);
+      
+      if (onPurchase) {
+        onPurchase(dataset.id);
+      }
+    } catch (error: any) {
       console.error('Purchase failed:', error);
+      alert(`Purchase failed: ${error.message}`);
     } finally {
-      setLoading(false);
+      setPurchasing(false);
     }
   };
 
@@ -64,7 +74,7 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
               {dataset.metadata.name}
             </h3>
             <p className="text-sm text-gray-500">
-              by {dataset.metadata.contributor.slice(0, 6)}...{dataset.metadata.contributor.slice(-4)}
+              by {dataset.contributor.slice(0, 6)}...{dataset.contributor.slice(-4)}
             </p>
           </div>
           {dataset.verified && (
@@ -132,21 +142,21 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
         {/* License and Date */}
         <div className="flex justify-between items-center text-xs text-gray-500 mb-4">
           <span>License: {dataset.metadata.license}</span>
-          <span>Updated: {formatTimestamp(dataset.metadata.timestamp)}</span>
+          <span>Updated: {formatTimestamp(dataset.timestamp)}</span>
         </div>
 
-        {/* Earnings Display */}
+        {/* Price Display */}
         <div className="flex items-center justify-between mb-4 p-3 bg-gray-50 rounded-lg">
           <div>
-            <span className="text-sm text-gray-600">Total Earnings</span>
-            <div className="font-semibold text-lg text-green-600">
-              {dataset.earnings} FIL
+            <span className="text-sm text-gray-600">Downloads</span>
+            <div className="font-semibold text-lg text-blue-600">
+              {dataset.downloadCount}
             </div>
           </div>
           <div className="text-right">
             <span className="text-sm text-gray-600">Price per Access</span>
             <div className="font-semibold">
-              0.05 FIL
+              {dataset.price} FIL
             </div>
           </div>
         </div>
@@ -155,14 +165,14 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
         <div className="flex space-x-2">
           <button
             onClick={handlePurchase}
-            disabled={loading || !connectedWallet}
+            disabled={purchasing || loading || !connectedWallet}
             className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
               connectedWallet
                 ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
                 : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
           >
-            {loading ? (
+            {purchasing || loading ? (
               <>
                 <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -191,15 +201,15 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
                 </span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-500">Checksum:</span>
+                <span className="text-gray-500">Contributor:</span>
                 <span className="font-mono text-xs text-gray-700">
-                  {dataset.metadata.checksum.slice(0, 12)}...
+                  {dataset.contributor}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-500">Storage:</span>
                 <span className="text-gray-700">
-                  {dataset.filecoinDeal ? 'Filecoin + IPFS' : 'IPFS Only'}
+                  Filecoin + IPFS
                 </span>
               </div>
             </div>
