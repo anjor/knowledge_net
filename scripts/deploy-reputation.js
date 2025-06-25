@@ -2,56 +2,45 @@ const { ethers } = require("ethers");
 require('dotenv').config();
 
 async function main() {
-  console.log("Deploying KnowledgeNet contracts to Filecoin network...");
+  console.log("Deploying ReputationSystem contract...");
 
   // Create provider and wallet
   const provider = new ethers.providers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
   const deployer = new ethers.Wallet(`0x${process.env.PRIVATE_KEY}`, provider);
   
-  console.log("Deploying contracts with account:", deployer.address);
+  console.log("Deploying with account:", deployer.address);
   
   // Check balance
   const balance = await deployer.getBalance();
   console.log("Account balance:", ethers.utils.formatEther(balance), "tFIL");
 
   try {
-    // Load contract artifacts
-    const marketplaceArtifact = require('../artifacts/contracts/KnowledgeMarketplace.sol/KnowledgeMarketplace.json');
+    // Marketplace address from previous deployment
+    const marketplaceAddress = "0x4387030f7e1715627C960f084bD86889672503B6";
+    
+    // Load contract artifact
     const reputationArtifact = require('../artifacts/contracts/ReputationSystem.sol/ReputationSystem.json');
     
-    // Deploy KnowledgeMarketplace contract
-    console.log("\n1. Deploying KnowledgeMarketplace...");
-    const MarketplaceFactory = new ethers.ContractFactory(marketplaceArtifact.abi, marketplaceArtifact.bytecode, deployer);
-    const marketplace = await MarketplaceFactory.deploy();
-    await marketplace.deployed();
-    
-    console.log("✅ KnowledgeMarketplace deployed to:", marketplace.address);
-
     // Deploy ReputationSystem contract
-    console.log("\n2. Deploying ReputationSystem...");
+    console.log("Deploying ReputationSystem...");
     const ReputationFactory = new ethers.ContractFactory(reputationArtifact.abi, reputationArtifact.bytecode, deployer);
-    const reputation = await ReputationFactory.deploy(marketplace.address);
+    const reputation = await ReputationFactory.deploy(marketplaceAddress);
     await reputation.deployed();
     
     console.log("✅ ReputationSystem deployed to:", reputation.address);
 
-    // Verify deployment by calling a read function
-    console.log("\n3. Verifying deployments...");
-    const totalDatasets = await marketplace.getTotalDatasets();
-    console.log("✅ Marketplace total datasets:", totalDatasets.toString());
-
+    // Verify deployment
     const pioneerBadge = await reputation.badges("PIONEER");
-    console.log("✅ Reputation system Pioneer badge:", pioneerBadge.name);
+    console.log("✅ Pioneer badge verified:", pioneerBadge.name);
 
-    // Save deployment info
+    // Create deployment summary
     const deploymentInfo = {
       network: "filecoin-calibration",
       timestamp: new Date().toISOString(),
       deployer: deployer.address,
       contracts: {
         KnowledgeMarketplace: {
-          address: marketplace.address,
-          transactionHash: marketplace.deployTransaction?.hash
+          address: marketplaceAddress
         },
         ReputationSystem: {
           address: reputation.address,
@@ -60,15 +49,15 @@ async function main() {
       }
     };
 
-    console.log("\n4. Deployment Summary:");
+    console.log("\n🎉 Deployment Summary:");
     console.log("=====================================");
     console.log("Network: Filecoin Calibration Testnet");
     console.log("Deployer:", deployer.address);
-    console.log("KnowledgeMarketplace:", marketplace.address);
+    console.log("KnowledgeMarketplace:", marketplaceAddress);
     console.log("ReputationSystem:", reputation.address);
     console.log("=====================================");
 
-    // Save to file for frontend integration
+    // Save deployment info
     const fs = require('fs');
     const path = require('path');
     
@@ -76,11 +65,12 @@ async function main() {
     fs.writeFileSync(deploymentPath, JSON.stringify(deploymentInfo, null, 2));
     console.log("✅ Deployment info saved to:", deploymentPath);
 
-    // Contract ABIs already loaded above
+    // Save contract ABIs
+    const marketplaceArtifact = require('../artifacts/contracts/KnowledgeMarketplace.sol/KnowledgeMarketplace.json');
     
     const abiInfo = {
       KnowledgeMarketplace: {
-        address: marketplace.address,
+        address: marketplaceAddress,
         abi: marketplaceArtifact.abi
       },
       ReputationSystem: {
@@ -93,19 +83,12 @@ async function main() {
     fs.writeFileSync(abiPath, JSON.stringify(abiInfo, null, 2));
     console.log("✅ Contract ABIs saved to:", abiPath);
 
-    console.log("\n🎉 Deployment completed successfully!");
-    console.log("Your KnowledgeNet marketplace is now live on Filecoin!");
-
+    console.log("\n🚀 KnowledgeNet is now LIVE on Filecoin!");
+    
   } catch (error) {
-    console.error("❌ Deployment failed:", error);
+    console.error("❌ Deployment failed:", error.message);
     process.exit(1);
   }
 }
 
-// Handle errors
-main()
-  .then(() => process.exit(0))
-  .catch((error) => {
-    console.error("❌ Deployment script failed:", error);
-    process.exit(1);
-  });
+main();

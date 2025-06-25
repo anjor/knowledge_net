@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useWeb3 } from '../hooks/useWeb3';
 
 interface MarketplaceStats {
   totalDatasets: number;
@@ -19,6 +20,7 @@ export const StatsDisplay: React.FC = () => {
     avgQualityScore: 0
   });
   const [loading, setLoading] = useState(true);
+  const { getNetworkInfo, isConnected } = useWeb3();
 
   useEffect(() => {
     loadStats();
@@ -28,15 +30,18 @@ export const StatsDisplay: React.FC = () => {
     try {
       setLoading(true);
       
-      // In a real app, this would fetch from the smart contract
-      // For demo, simulate realistic stats
+      // Show network info and simulated stats for demo
+      const networkInfo = getNetworkInfo();
+      console.log('Connected to:', networkInfo);
+      
+      // For PLGenesis demo - show live network status with sample data
       const simulatedStats: MarketplaceStats = {
-        totalDatasets: 1247,
-        totalValidators: 89,
-        totalDownloads: 15623,
-        totalEarnings: '2847.32',
-        verifiedDatasets: 1156,
-        avgQualityScore: 87
+        totalDatasets: 3, // Matching our sample data
+        totalValidators: 5,
+        totalDownloads: 479, // Sum of sample download counts
+        totalEarnings: '38.24', // Total from sample prices * downloads
+        verifiedDatasets: 3,
+        avgQualityScore: 92 // Average of sample scores
       };
 
       // Animate the numbers counting up

@@ -3,14 +3,14 @@ import { DatasetCard } from './DatasetCard';
 import { SearchBar } from './SearchBar';
 import { StatsDisplay } from './StatsDisplay';
 import { WalletConnect } from './WalletConnect';
-import { Dataset } from '../utils/storage';
+import { Dataset, useWeb3 } from '../hooks/useWeb3';
 
 export const MarketplaceHome: React.FC = () => {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [connectedWallet, setConnectedWallet] = useState<string | null>(null);
+  const { account, isConnected } = useWeb3();
 
   useEffect(() => {
     loadFeaturedDatasets();
@@ -19,8 +19,8 @@ export const MarketplaceHome: React.FC = () => {
   const loadFeaturedDatasets = async () => {
     try {
       setLoading(true);
-      // In a real app, this would fetch from the API
-      // For now, show some sample data
+      // Display sample data since we don't have real datasets registered yet
+      // In production, this would query the contract for all datasets
       const sampleDatasets: Dataset[] = [
         {
           id: 'dataset_001',
@@ -30,16 +30,15 @@ export const MarketplaceHome: React.FC = () => {
             tags: ['medical', 'imaging', 'ai-training'],
             format: 'json',
             size: 1024000,
-            checksum: '0xabc123...',
-            license: 'CC-BY-4.0',
-            contributor: '0xMedicalInstitute',
-            timestamp: Date.now() - 86400000
+            license: 'CC-BY-4.0'
           },
           ipfsHash: 'QmExample1...',
-          verified: true,
-          qualityScore: 92,
+          contributor: '0x40696c3503CD8248da4b0bF9d02432Dc22ec274A',
+          price: '0.05',
           downloadCount: 156,
-          earnings: '12.45'
+          qualityScore: 92,
+          verified: true,
+          timestamp: Date.now() - 86400000
         },
         {
           id: 'dataset_002',
@@ -49,16 +48,15 @@ export const MarketplaceHome: React.FC = () => {
             tags: ['climate', 'environmental', 'science'],
             format: 'csv',
             size: 2048000,
-            checksum: '0xdef456...',
-            license: 'Open Data',
-            contributor: '0xClimateOrg',
-            timestamp: Date.now() - 172800000
+            license: 'Open Data'
           },
           ipfsHash: 'QmExample2...',
-          verified: true,
-          qualityScore: 88,
+          contributor: '0x40696c3503CD8248da4b0bF9d02432Dc22ec274A',
+          price: '0.03',
           downloadCount: 89,
-          earnings: '7.23'
+          qualityScore: 88,
+          verified: true,
+          timestamp: Date.now() - 172800000
         },
         {
           id: 'dataset_003',
@@ -68,16 +66,15 @@ export const MarketplaceHome: React.FC = () => {
             tags: ['finance', 'trading', 'time-series'],
             format: 'parquet',
             size: 512000,
-            checksum: '0xghi789...',
-            license: 'Commercial',
-            contributor: '0xFinanceProvider',
-            timestamp: Date.now() - 43200000
+            license: 'Commercial'
           },
           ipfsHash: 'QmExample3...',
-          verified: true,
-          qualityScore: 95,
+          contributor: '0x40696c3503CD8248da4b0bF9d02432Dc22ec274A',
+          price: '0.1',
           downloadCount: 234,
-          earnings: '18.76'
+          qualityScore: 95,
+          verified: true,
+          timestamp: Date.now() - 43200000
         }
       ];
       
@@ -114,7 +111,7 @@ export const MarketplaceHome: React.FC = () => {
   };
 
   const handleWalletConnect = (address: string) => {
-    setConnectedWallet(address);
+    // Wallet connection is now handled by useWeb3 hook
   };
 
   const filteredDatasets = datasets.filter(dataset => {
@@ -214,7 +211,7 @@ export const MarketplaceHome: React.FC = () => {
                   key={dataset.id} 
                   dataset={dataset}
                   onPurchase={() => console.log('Purchase', dataset.id)}
-                  connectedWallet={connectedWallet}
+                  connectedWallet={account}
                 />
               ))}
             </div>

@@ -1,0 +1,199 @@
+import type { NextApiRequest, NextApiResponse } from 'next';
+import { web3Service } from '../../../utils/web3';
+
+interface QueryRequest {
+  datasetId: string;
+  query: string;
+  apiKey?: string;
+  userId?: string;
+}
+
+interface QueryResponse {
+  success: boolean;
+  data?: any;
+  error?: string;
+  usage?: {
+    tokensUsed: number;
+    cost: string;
+  };
+  provenance?: {
+    datasetId: string;
+    ipfsHash: string;
+    contributor: string;
+    verified: boolean;
+    timestamp: number;
+  };
+}
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse<QueryResponse>
+) {
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    return res.status(405).json({
+      success: false,
+      error: 'Method not allowed. Use POST.'
+    });
+  }
+
+  try {
+    const { datasetId, query, apiKey, userId }: QueryRequest = req.body;
+
+    // Validate required fields
+    if (!datasetId || !query) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: datasetId and query'
+      });
+    }
+
+    // In production, validate API key and user access
+    if (!apiKey) {
+      return res.status(401).json({
+        success: false,
+        error: 'API key required for data access'
+      });
+    }
+
+    // Check if user has access to this dataset (via smart contract)
+    const hasAccess = userId ? await web3Service.hasAccess(datasetId, userId) : false;
+    
+    if (!hasAccess && userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Access denied. Purchase dataset access first.'
+      });
+    }
+
+    // Get dataset information for provenance
+    const dataset = await web3Service.getDataset(datasetId);
+    
+    if (!dataset) {
+      return res.status(404).json({
+        success: false,
+        error: 'Dataset not found'
+      });
+    }
+
+    // Parse metadata
+    const metadata = JSON.parse(dataset.metadata);
+
+    // Simulate AI data processing
+    const processedData = await processAIQuery(dataset.ipfsHash, query, metadata);
+
+    // Calculate usage cost (simplified pricing model)
+    const usage = {
+      tokensUsed: query.length * 2, // Simple token estimation
+      cost: '0.001' // 0.001 FIL per query
+    };
+
+    // Build provenance information
+    const provenance = {
+      datasetId,
+      ipfsHash: dataset.ipfsHash,
+      contributor: dataset.contributor,
+      verified: dataset.verified,
+      timestamp: Date.now()
+    };
+
+    return res.status(200).json({
+      success: true,
+      data: processedData,
+      usage,
+      provenance
+    });
+
+  } catch (error: any) {
+    console.error('AI query error:', error);
+    return res.status(500).json({
+      success: false,
+      error: error.message || 'Internal server error'
+    });
+  }
+}
+
+async function processAIQuery(ipfsHash: string, query: string, metadata: any): Promise<any> {
+  // Simulate AI processing of the data
+  // In production, this would:
+  // 1. Fetch data from IPFS using the hash
+  // 2. Process the query against the dataset
+  // 3. Return relevant results
+
+  await new Promise(resolve => setTimeout(resolve, 500)); // Simulate processing time
+
+  // Return mock processed data based on dataset type
+  if (metadata.tags.includes('medical')) {
+    return {
+      type: 'medical_analysis',
+      query,
+      results: [
+        {
+          finding: 'Pattern detected in medical imaging data',
+          confidence: 0.92,
+          data_points: 156,
+          source: ipfsHash
+        }
+      ],
+      summary: `Analyzed medical dataset for: ${query}`,
+      accuracy_metrics: {
+        precision: 0.94,
+        recall: 0.89,
+        f1_score: 0.91
+      }
+    };
+  } else if (metadata.tags.includes('climate')) {
+    return {
+      type: 'climate_analysis',
+      query,
+      results: [
+        {
+          measurement: 'Temperature trend analysis',
+          value: 23.5,
+          unit: 'celsius',
+          trend: 'increasing',
+          confidence: 0.87
+        }
+      ],
+      summary: `Climate data analysis for: ${query}`,
+      time_range: '2020-2024',
+      geographic_scope: 'Global'
+    };
+  } else if (metadata.tags.includes('finance')) {
+    return {
+      type: 'financial_analysis',
+      query,
+      results: [
+        {
+          metric: 'Price correlation',
+          value: 0.73,
+          timeframe: '1Y',
+          volatility: 0.24
+        }
+      ],
+      summary: `Financial market analysis for: ${query}`,
+      risk_metrics: {
+        var_95: 0.023,
+        sharpe_ratio: 1.42
+      }
+    };
+  }
+
+  // Generic response for other dataset types
+  return {
+    type: 'general_analysis',
+    query,
+    results: [
+      {
+        summary: `Processed query "${query}" against dataset`,
+        data_points_analyzed: Math.floor(Math.random() * 1000) + 100,
+        processing_time_ms: Math.floor(Math.random() * 500) + 200
+      }
+    ],
+    metadata: {
+      dataset_format: metadata.format,
+      dataset_size: metadata.size,
+      tags: metadata.tags
+    }
+  };
+}
