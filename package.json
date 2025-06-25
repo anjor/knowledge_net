@@ -11,6 +11,7 @@
     "test": "jest",
     "contracts:compile": "hardhat compile",
     "contracts:deploy": "hardhat run scripts/deploy.js",
+    "contracts:register": "node scripts/register-datasets.js",
     "contracts:test-connection": "hardhat run scripts/test-connection.js --network calibration",
     "contracts:generate-wallet": "hardhat run scripts/generate-wallet.js"
   },
