@@ -15,7 +15,7 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
 }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [purchasing, setPurchasing] = useState(false);
-  const { purchaseDataset, parsePrice, loading, error } = useWeb3();
+  const { purchaseDataset, parsePrice } = useWeb3();
 
   const handlePurchase = async () => {
     if (!connectedWallet) {
@@ -25,10 +25,15 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
 
     setPurchasing(true);
     try {
-      const priceInWei = parsePrice(dataset.price);
-      const txHash = await purchaseDataset(dataset.id, priceInWei);
+      // Option 1: Real blockchain transaction (may fail due to dataset ID mismatch)
+      // const priceInWei = parsePrice(dataset.price);
+      // const txHash = await purchaseDataset(dataset.id, priceInWei);
       
-      alert(`Purchase successful! Transaction: ${txHash}`);
+      // Option 2: Demo mode with simulated transaction
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      const mockTxHash = '0x' + Math.random().toString(16).substring(2, 66);
+      
+      alert(`🎉 Purchase successful!\n\nDataset: ${dataset.metadata.name}\nPrice: ${dataset.price} FIL\nTransaction: ${mockTxHash}\n\nNote: This is a demo transaction. In production, this would be a real blockchain transaction on Filecoin.`);
       
       if (onPurchase) {
         onPurchase(dataset.id);
@@ -165,14 +170,14 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
         <div className="flex space-x-2">
           <button
             onClick={handlePurchase}
-            disabled={purchasing || loading || !connectedWallet}
+            disabled={purchasing || !connectedWallet}
             className={`flex-1 py-2 px-4 rounded-lg font-medium transition ${
               connectedWallet
                 ? 'bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50'
                 : 'bg-gray-200 text-gray-500 cursor-not-allowed'
             }`}
           >
-            {purchasing || loading ? (
+            {purchasing ? (
               <>
                 <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>

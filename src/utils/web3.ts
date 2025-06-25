@@ -21,7 +21,7 @@ export class Web3Service {
   private async initializeProvider() {
     if (typeof window !== 'undefined' && window.ethereum) {
       this.provider = new ethers.providers.Web3Provider(window.ethereum);
-      await this.connectContracts();
+      // Don't connect contracts here, wait for wallet connection
     }
   }
 
@@ -32,6 +32,8 @@ export class Web3Service {
 
     await this.provider.send('eth_requestAccounts', []);
     this.signer = this.provider.getSigner();
+    
+    // Connect contracts with signer
     await this.connectContracts();
     
     return await this.signer.getAddress();
@@ -84,8 +86,19 @@ export class Web3Service {
   }
 
   async purchaseDataset(datasetId: string, priceInWei: string): Promise<ethers.ContractTransaction> {
-    if (!this.marketplaceContract || !this.signer) {
-      throw new Error('Contract not connected');
+    // Ensure wallet and contracts are connected
+    if (!this.signer || !this.marketplaceContract) {
+      // Try to reconnect
+      if (window.ethereum) {
+        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+        if (accounts.length > 0) {
+          await this.connectWallet();
+        }
+      }
+      
+      if (!this.marketplaceContract || !this.signer) {
+        throw new Error('Contract not connected. Please connect your wallet first.');
+      }
     }
 
     return await this.marketplaceContract.purchaseDataset(datasetId, {
