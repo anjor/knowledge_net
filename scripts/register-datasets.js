@@ -96,7 +96,7 @@ async function main() {
         dataset.ipfsHash,
         dataset.metadataHash,
         dataset.price,
-        { gasLimit: 2000000 } // Increased gas limit for Filecoin
+        { gasLimit: 25000000 } // Proper gas limit for Filecoin (25M)
       );
 
       console.log(`  📤 Transaction sent: ${tx.hash}`);

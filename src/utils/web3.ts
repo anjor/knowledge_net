@@ -101,9 +101,25 @@ export class Web3Service {
       }
     }
 
-    return await this.marketplaceContract.purchaseDataset(datasetId, {
-      value: priceInWei
-    });
+
+    // Let MetaMask estimate gas first
+    try {
+      const gasEstimate = await this.marketplaceContract.estimateGas.purchaseDataset(datasetId, {
+        value: priceInWei
+      });
+      console.log('Gas estimate:', gasEstimate.toString());
+      
+      return await this.marketplaceContract.purchaseDataset(datasetId, {
+        value: priceInWei,
+        gasLimit: gasEstimate.mul(120).div(100) // Add 20% buffer
+      });
+    } catch (gasError) {
+      console.log('Gas estimation failed, using fixed limit');
+      return await this.marketplaceContract.purchaseDataset(datasetId, {
+        value: priceInWei,
+        gasLimit: 30000000 // Fallback gas limit
+      });
+    }
   }
 
   async getDataset(datasetId: string): Promise<any> {

@@ -43,20 +43,17 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
 
     setPurchasing(true);
     try {
-      // Option 1: Real blockchain transaction (may fail due to dataset ID mismatch)
-      // const priceInWei = parsePrice(dataset.price);
-      // const txHash = await purchaseDataset(dataset.id, priceInWei);
-
-      // Option 2: Demo mode with simulated transaction  
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      const mockTxHash = '0x' + Math.random().toString(16).substring(2, 66);
+      // Real blockchain transaction
+      const priceInWei = parsePrice(dataset.price);
+      const tx = await purchaseDataset(dataset.id, priceInWei);
+      const txHash = tx.hash;
 
       setToast({
         show: true,
         type: "success",
         title: "Purchase Successful!",
-        message: `Dataset: ${dataset.metadata.name}\nPrice: ${dataset.price} FIL\n\nNote: This is a demo transaction. In production, this would be a real blockchain transaction on Filecoin.`,
-        transactionHash: mockTxHash,
+        message: `Successfully purchased access to ${dataset.metadata.name} for ${dataset.price} FIL. Transaction confirmed on Filecoin blockchain.`,
+        transactionHash: txHash,
       });
 
       if (onPurchase) {

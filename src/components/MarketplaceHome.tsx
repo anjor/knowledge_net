@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { DatasetCard } from './DatasetCard';
-import { SearchBar } from './SearchBar';
 import { StatsDisplay } from './StatsDisplay';
 import { WalletConnect } from './WalletConnect';
 import { Dataset, useWeb3 } from '../hooks/useWeb3';
@@ -8,77 +7,32 @@ import { Dataset, useWeb3 } from '../hooks/useWeb3';
 export const MarketplaceHome: React.FC = () => {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const { account, isConnected } = useWeb3();
+  const { account, isConnected, getDataset } = useWeb3();
 
   useEffect(() => {
     loadFeaturedDatasets();
-  }, []);
+  }, [getDataset]);
 
   const loadFeaturedDatasets = async () => {
     try {
       setLoading(true);
-      // Display sample data since we don't have real datasets registered yet
-      // In production, this would query the contract for all datasets
-      const sampleDatasets: Dataset[] = [
-        {
-          id: 'dataset_001',
-          metadata: {
-            name: 'Medical Image Dataset',
-            description: 'Curated collection of medical imaging data for AI training',
-            tags: ['medical', 'imaging', 'ai-training'],
-            format: 'json',
-            size: 1024000,
-            license: 'CC-BY-4.0'
-          },
-          ipfsHash: 'QmExample1...',
-          contributor: '0x40696c3503CD8248da4b0bF9d02432Dc22ec274A',
-          price: '0.05',
-          downloadCount: 156,
-          qualityScore: 92,
-          verified: true,
-          timestamp: Date.now() - 86400000
-        },
-        {
-          id: 'dataset_002',
-          metadata: {
-            name: 'Climate Data Collection',
-            description: 'Global climate measurements and predictions',
-            tags: ['climate', 'environmental', 'science'],
-            format: 'csv',
-            size: 2048000,
-            license: 'Open Data'
-          },
-          ipfsHash: 'QmExample2...',
-          contributor: '0x40696c3503CD8248da4b0bF9d02432Dc22ec274A',
-          price: '0.03',
-          downloadCount: 89,
-          qualityScore: 88,
-          verified: true,
-          timestamp: Date.now() - 172800000
-        },
-        {
-          id: 'dataset_003',
-          metadata: {
-            name: 'Financial Market Data',
-            description: 'Real-time and historical financial market data',
-            tags: ['finance', 'trading', 'time-series'],
-            format: 'parquet',
-            size: 512000,
-            license: 'Commercial'
-          },
-          ipfsHash: 'QmExample3...',
-          contributor: '0x40696c3503CD8248da4b0bF9d02432Dc22ec274A',
-          price: '0.1',
-          downloadCount: 234,
-          qualityScore: 95,
-          verified: true,
-          timestamp: Date.now() - 43200000
-        }
-      ];
       
-      setDatasets(sampleDatasets);
+      // Load datasets from smart contract
+      const datasetIds = ['dataset_001', 'dataset_002', 'dataset_003'];
+      const loadedDatasets: Dataset[] = [];
+      
+      for (const id of datasetIds) {
+        try {
+          const dataset = await getDataset(id);
+          if (dataset) {
+            loadedDatasets.push(dataset);
+          }
+        } catch (error) {
+          console.warn(`Failed to load dataset ${id}:`, error);
+        }
+      }
+      
+      setDatasets(loadedDatasets);
     } catch (error) {
       console.error('Failed to load datasets:', error);
     } finally {
@@ -86,44 +40,11 @@ export const MarketplaceHome: React.FC = () => {
     }
   };
 
-  const handleSearch = async (query: string, tags: string[]) => {
-    setSearchQuery(query);
-    setSelectedTags(tags);
-    
-    try {
-      setLoading(true);
-      
-      // In a real app, this would call the search API
-      const response = await fetch('/api/datasets/search?' + new URLSearchParams({
-        tags: tags.join(','),
-        q: query
-      }));
-      
-      if (response.ok) {
-        const data = await response.json();
-        setDatasets(data.datasets);
-      }
-    } catch (error) {
-      console.error('Search failed:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleWalletConnect = (address: string) => {
     // Wallet connection is now handled by useWeb3 hook
   };
 
-  const filteredDatasets = datasets.filter(dataset => {
-    const matchesQuery = !searchQuery || 
-      dataset.metadata.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      dataset.metadata.description.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesTags = selectedTags.length === 0 ||
-      selectedTags.some(tag => dataset.metadata.tags.includes(tag));
-    
-    return matchesQuery && matchesTags;
-  });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -175,18 +96,12 @@ export const MarketplaceHome: React.FC = () => {
         </div>
       </section>
 
-      {/* Search Section */}
-      <section className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <SearchBar onSearch={handleSearch} />
-        </div>
-      </section>
 
       {/* Featured Datasets */}
       <section className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">
-            {searchQuery || selectedTags.length > 0 ? 'Search Results' : 'Featured Datasets'}
+            Available Datasets
           </h3>
           
           {loading ? (
@@ -206,7 +121,7 @@ export const MarketplaceHome: React.FC = () => {
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredDatasets.map((dataset) => (
+              {datasets.map((dataset) => (
                 <DatasetCard 
                   key={dataset.id} 
                   dataset={dataset}
@@ -217,17 +132,11 @@ export const MarketplaceHome: React.FC = () => {
             </div>
           )}
           
-          {!loading && filteredDatasets.length === 0 && (
+          {!loading && datasets.length === 0 && (
             <div className="text-center py-12">
               <p className="text-gray-500 text-lg">
-                No datasets found matching your criteria.
+                No datasets available yet.
               </p>
-              <button 
-                onClick={() => handleSearch('', [])}
-                className="mt-4 text-blue-600 hover:text-blue-800"
-              >
-                Clear filters
-              </button>
             </div>
           )}
         </div>
