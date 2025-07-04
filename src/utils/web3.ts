@@ -133,14 +133,25 @@ export class Web3Service {
   async getDataset(datasetId: string): Promise<any> {
     if (!this.marketplaceContract) {
       // Try to connect contracts without wallet for read-only operations
-      await this.connectContracts();
+      try {
+        await this.connectContracts();
+      } catch (error) {
+        console.warn('Failed to connect contracts for getDataset:', error);
+        return null; // Return null instead of throwing for graceful fallback
+      }
     }
     
     if (!this.marketplaceContract) {
-      throw new Error('Contract not connected');
+      console.warn('Contract still not connected after attempt, returning null for getDataset');
+      return null; // Return null instead of throwing for graceful fallback
     }
 
-    return await this.marketplaceContract.datasets(datasetId);
+    try {
+      return await this.marketplaceContract.datasets(datasetId);
+    } catch (error) {
+      console.warn('getDataset contract call failed:', error);
+      return null; // Return null instead of throwing for graceful fallback
+    }
   }
 
   async getTotalDatasets(): Promise<number> {
@@ -162,10 +173,25 @@ export class Web3Service {
 
   async hasAccess(datasetId: string, user: string): Promise<boolean> {
     if (!this.marketplaceContract) {
-      throw new Error('Contract not connected');
+      // Try to connect contracts for server-side usage
+      try {
+        await this.connectContracts();
+        if (!this.marketplaceContract) {
+          console.warn('Contract still not connected after attempt, returning false for hasAccess');
+          return false; // For demo purposes, return false instead of throwing
+        }
+      } catch (error) {
+        console.warn('Failed to connect contracts for hasAccess check:', error);
+        return false; // For demo purposes, return false instead of throwing
+      }
     }
 
-    return await this.marketplaceContract.hasAccess(datasetId, user);
+    try {
+      return await this.marketplaceContract.hasAccess(datasetId, user);
+    } catch (error) {
+      console.warn('hasAccess contract call failed:', error);
+      return false; // For demo purposes, return false instead of throwing
+    }
   }
 
   // Reputation Functions

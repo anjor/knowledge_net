@@ -132,7 +132,7 @@ const DocsPage = () => {
                   <div className="text-sm space-y-1">
                     <div className="flex justify-between">
                       <span className="text-green-700">Address:</span>
-                      <code className="text-green-800 font-mono text-xs">0xc0322d66e1a2d334419e04c98Aa127F1E83087fC</code>
+                      <code className="text-green-800 font-mono text-xs">0x8662307D31e29dC91C8dca9B78e8F896dBC68383</code>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-green-700">Network:</span>
@@ -147,7 +147,7 @@ const DocsPage = () => {
                     </div>
                     <div className="mt-2">
                       <a 
-                        href="https://calibration.filscan.io/address/0xc0322d66e1a2d334419e04c98Aa127F1E83087fC" 
+                        href="https://calibration.filscan.io/address/0x8662307D31e29dC91C8dca9B78e8F896dBC68383" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-green-600 hover:text-green-800 text-xs underline"
@@ -242,7 +242,7 @@ const DocsPage = () => {
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Verify Live Architecture</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <a 
-                  href="https://calibration.filscan.io/address/0xc0322d66e1a2d334419e04c98Aa127F1E83087fC" 
+                  href="https://calibration.filscan.io/address/0x8662307D31e29dC91C8dca9B78e8F896dBC68383" 
                   target="_blank" 
                   rel="noopener noreferrer"
                   className="bg-white p-4 rounded-lg text-center hover:shadow-md transition-shadow"

@@ -310,6 +310,17 @@ contract KnowledgeMarketplace is ReentrancyGuard, Ownable {
     }
 
     /**
+     * Check if user has access to dataset (alias for hasPurchasedDataset)
+     */
+    function hasAccess(string memory _datasetId, address _user) 
+        external 
+        view 
+        returns (bool) 
+    {
+        return this.hasPurchasedDataset(_datasetId, _user);
+    }
+
+    /**
      * Emergency withdrawal (owner only)
      */
     function emergencyWithdraw() external onlyOwner {

@@ -1,6 +1,6 @@
 {
   "KnowledgeMarketplace": {
-    "address": "0xc0322d66e1a2d334419e04c98Aa127F1E83087fC",
+    "address": "0x8662307D31e29dC91C8dca9B78e8F896dBC68383",
     "abi": [
       {
         "inputs": [],
@@ -634,6 +634,30 @@
             "internalType": "struct KnowledgeMarketplace.Validator",
             "name": "",
             "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "string",
+            "name": "_datasetId",
+            "type": "string"
+          },
+          {
+            "internalType": "address",
+            "name": "_user",
+            "type": "address"
+          }
+        ],
+        "name": "hasAccess",
+        "outputs": [
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
           }
         ],
         "stateMutability": "view",

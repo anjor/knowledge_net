@@ -92,10 +92,14 @@ export class KnowledgeNetSDK {
     if (options.limit) searchParams.set('limit', options.limit.toString());
     if (options.offset) searchParams.set('offset', options.offset.toString());
 
+    // Add cache buster for development
+    searchParams.set('_t', Date.now().toString());
+
     const response = await fetch(`${this.baseUrl}/api/ai-interface/datasets?${searchParams}`, {
       headers: {
         'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'Cache-Control': 'no-cache'
       }
     });
 

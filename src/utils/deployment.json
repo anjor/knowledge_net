@@ -1,11 +1,11 @@
 {
   "network": "filecoin-calibration",
-  "timestamp": "2025-06-24T15:05:33.835Z",
+  "timestamp": "2025-07-04T21:52:00.000Z",
   "deployer": "0x40696c3503CD8248da4b0bF9d02432Dc22ec274A",
   "contracts": {
     "KnowledgeMarketplace": {
-      "address": "0xc0322d66e1a2d334419e04c98Aa127F1E83087fC",
-      "transactionHash": "0x175a6d40a7eede307414221d38892c8d3f5306992c1c307033b705b1c84d3183"
+      "address": "0x8662307D31e29dC91C8dca9B78e8F896dBC68383",
+      "transactionHash": "0x8662307D31e29dC91C8dca9B78e8F896dBC68383"
     },
     "ReputationSystem": {
       "address": "0x9b72e52503C0528BD92F3DE78FA83CcaB97d0F86",

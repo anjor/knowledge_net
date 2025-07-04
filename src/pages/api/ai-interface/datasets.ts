@@ -50,6 +50,17 @@ export default async function handler(
     const qualityThreshold = Number(minQualityScore);
     const limitNum = Number(limit);
     const offsetNum = Number(offset);
+    const verifiedBool = verified === 'true' ? true : verified === 'false' ? false : undefined;
+
+    console.log('API Request params:', {
+      tags: tagsArray,
+      format,
+      minQualityScore: qualityThreshold,
+      maxPrice,
+      verified: verifiedBool,
+      limit: limitNum,
+      offset: offsetNum
+    });
 
     // For demo purposes, return sample datasets that match the search criteria
     // In production, this would query the smart contract for all dataset IDs
@@ -111,6 +122,8 @@ export default async function handler(
       }
     ];
 
+    console.log('Sample datasets before filtering:', sampleDatasets.length);
+
     // Apply filters
     const filteredDatasets = sampleDatasets.filter(dataset => {
       // Tag filter
@@ -137,12 +150,14 @@ export default async function handler(
       }
 
       // Verified filter
-      if (verified !== undefined && dataset.verified !== verified) {
+      if (verifiedBool !== undefined && dataset.verified !== verifiedBool) {
         return false;
       }
 
       return true;
     });
+
+    console.log('Filtered datasets count:', filteredDatasets.length);
 
     // Apply pagination
     const paginatedDatasets = filteredDatasets.slice(offsetNum, offsetNum + limitNum);
@@ -150,6 +165,11 @@ export default async function handler(
     // Calculate metadata
     const totalPages = Math.ceil(filteredDatasets.length / limitNum);
     const currentPage = Math.floor(offsetNum / limitNum) + 1;
+
+    // Add cache-busting headers for development
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.setHeader('Pragma', 'no-cache');
+    res.setHeader('Expires', '0');
 
     return res.status(200).json({
       success: true,

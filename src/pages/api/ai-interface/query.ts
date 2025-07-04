@@ -57,11 +57,12 @@ export default async function handler(
     }
 
     // Check if user has access to this dataset (via smart contract)
-    // For demo purposes, allow access for presentation smoothness
+    // For demo purposes, allow access for presentation smoothness if contract fails
     let hasAccess = true;
     try {
       if (userId) {
         hasAccess = await web3Service.hasAccess(datasetId, userId);
+        console.log(`Smart contract access check for user ${userId} on dataset ${datasetId}: ${hasAccess}`);
       }
     } catch (error) {
       console.warn('Smart contract access check failed, allowing for demo:', error);
@@ -89,7 +90,10 @@ export default async function handler(
         verified: true,
         metadata: JSON.stringify({
           name: getDatasetName(datasetId),
-          tags: getDatasetTags(datasetId)
+          tags: getDatasetTags(datasetId),
+          format: 'json',
+          size: 1024000,
+          license: 'CC-BY-4.0'
         })
       };
     }
@@ -102,7 +106,18 @@ export default async function handler(
     }
 
     // Parse metadata
-    const metadata = JSON.parse(dataset.metadata);
+    let metadata;
+    try {
+      metadata = typeof dataset.metadata === 'string' ? JSON.parse(dataset.metadata) : dataset.metadata;
+    } catch (error) {
+      console.warn('Failed to parse metadata, using fallback:', error);
+      metadata = {
+        name: getDatasetName(datasetId),
+        tags: getDatasetTags(datasetId),
+        format: 'json',
+        size: 1024000
+      };
+    }
 
     // Simulate AI data processing
     const processedData = await processAIQuery(dataset.ipfsHash, query, metadata);

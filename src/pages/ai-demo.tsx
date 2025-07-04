@@ -119,6 +119,11 @@ const AIDemoPage: React.FC = () => {
             </button>
           </div>
           
+          {/* Debug info */}
+          <div className="text-sm text-gray-500 mb-4">
+            Debug: Found {datasets.length} datasets, Loading: {loading.toString()}
+          </div>
+          
           {datasets.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {datasets.map((dataset) => (
