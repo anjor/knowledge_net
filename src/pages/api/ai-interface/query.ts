@@ -163,7 +163,7 @@ async function processAIQuery(ipfsHash: string, query: string, metadata: any): P
   await new Promise(resolve => setTimeout(resolve, 500)); // Simulate processing time
 
   // Return mock processed data based on dataset type
-  if (metadata.tags.includes('medical')) {
+  if (metadata?.tags?.includes('medical')) {
     return {
       type: 'medical_analysis',
       query,
@@ -182,7 +182,7 @@ async function processAIQuery(ipfsHash: string, query: string, metadata: any): P
         f1_score: 0.91
       }
     };
-  } else if (metadata.tags.includes('climate')) {
+  } else if (metadata?.tags?.includes('climate')) {
     return {
       type: 'climate_analysis',
       query,
@@ -199,7 +199,7 @@ async function processAIQuery(ipfsHash: string, query: string, metadata: any): P
       time_range: '2020-2024',
       geographic_scope: 'Global'
     };
-  } else if (metadata.tags.includes('finance')) {
+  } else if (metadata?.tags?.includes('finance')) {
     return {
       type: 'financial_analysis',
       query,
@@ -219,21 +219,127 @@ async function processAIQuery(ipfsHash: string, query: string, metadata: any): P
     };
   }
 
-  // Generic response for other dataset types
+  // Enhanced generic response based on query patterns
+  const queryLower = query.toLowerCase();
+  
+  if (queryLower.includes('temperature') || queryLower.includes('climate') || queryLower.includes('weather')) {
+    return {
+      type: 'climate_analysis',
+      query,
+      results: [
+        {
+          finding: 'Global temperature anomaly detected',
+          trend: 'Increasing trend of +0.18°C per decade',
+          confidence: 0.94,
+          data_points: 3840,
+          regional_breakdown: {
+            arctic: '+0.31°C/decade',
+            temperate: '+0.15°C/decade', 
+            tropical: '+0.12°C/decade'
+          }
+        },
+        {
+          finding: 'Seasonal pattern analysis',
+          insight: 'Winter warming accelerating faster than summer',
+          correlation: 0.89,
+          statistical_significance: 'p < 0.001'
+        }
+      ],
+      summary: `Analyzed ${Math.floor(Math.random() * 50 + 100)}k temperature records spanning 2014-2024`,
+      methodology: 'Time series analysis with Mann-Kendall trend detection',
+      accuracy_metrics: {
+        r_squared: 0.87,
+        rmse: 0.23,
+        validation_score: 0.91
+      }
+    };
+  }
+  
+  if (queryLower.includes('pattern') || queryLower.includes('detect') || queryLower.includes('anomal')) {
+    return {
+      type: 'pattern_detection',
+      query,
+      results: [
+        {
+          pattern_type: 'Recurring anomaly clusters',
+          frequency: 'Every 18-24 months',
+          confidence: 0.87,
+          affected_regions: ['North America', 'Northern Europe', 'East Asia']
+        },
+        {
+          pattern_type: 'Correlation network',
+          primary_drivers: ['Ocean temperature oscillations', 'Atmospheric pressure systems'],
+          network_density: 0.73,
+          key_nodes: 15
+        }
+      ],
+      summary: `Identified ${Math.floor(Math.random() * 8 + 5)} significant patterns using advanced ML algorithms`,
+      algorithm: 'Ensemble of Random Forest + LSTM neural networks',
+      processing_details: {
+        features_extracted: 247,
+        training_accuracy: 0.94,
+        cross_validation_score: 0.89
+      }
+    };
+  }
+  
+  if (queryLower.includes('predict') || queryLower.includes('forecast') || queryLower.includes('future')) {
+    return {
+      type: 'predictive_analysis',
+      query,
+      results: [
+        {
+          forecast_horizon: '5-year projection',
+          predicted_trend: 'Continued warming with accelerating rate',
+          confidence_interval: '±0.15°C at 95% confidence',
+          key_drivers: ['Greenhouse gas concentrations', 'Land use changes', 'Ocean circulation']
+        },
+        {
+          scenario_analysis: 'Multiple pathway assessment',
+          best_case: '+0.8°C by 2029',
+          worst_case: '+1.4°C by 2029',
+          most_likely: '+1.1°C by 2029'
+        }
+      ],
+      summary: 'Probabilistic forecasting using ensemble climate models',
+      model_performance: {
+        historical_accuracy: 0.92,
+        uncertainty_quantification: 'Bayesian neural networks',
+        validation_period: '2019-2023'
+      }
+    };
+  }
+  
+  // Default enhanced response
   return {
-    type: 'general_analysis',
+    type: 'comprehensive_analysis',
     query,
     results: [
       {
-        summary: `Processed query "${query}" against dataset`,
-        data_points_analyzed: Math.floor(Math.random() * 1000) + 100,
-        processing_time_ms: Math.floor(Math.random() * 500) + 200
+        analysis_type: 'Multi-dimensional data exploration',
+        key_insights: [
+          'Identified 3 primary data clusters with distinct characteristics',
+          'Strong temporal correlations detected (r=0.84)',
+          'Anomaly detection revealed 12 significant outliers'
+        ],
+        data_quality_score: 0.91,
+        completeness: '98.5%'
+      },
+      {
+        statistical_summary: {
+          records_processed: Math.floor(Math.random() * 100000 + 50000),
+          variables_analyzed: Math.floor(Math.random() * 50 + 20),
+          time_span: '2014-2024',
+          geographic_coverage: 'Global'
+        }
       }
     ],
-    metadata: {
-      dataset_format: metadata.format,
-      dataset_size: metadata.size,
-      tags: metadata.tags
+    summary: `Comprehensive analysis revealing significant patterns and trends in the dataset`,
+    methodology: 'Advanced statistical modeling with machine learning validation',
+    confidence_metrics: {
+      overall_confidence: 0.88,
+      data_reliability: 0.93,
+      model_validation: 0.85
     }
   };
 }
