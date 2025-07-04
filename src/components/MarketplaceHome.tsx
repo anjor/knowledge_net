@@ -192,6 +192,7 @@ export const MarketplaceHome: React.FC = () => {
             <div>
               <h4 className="font-semibold text-gray-900 mb-4">Developers</h4>
               <ul className="space-y-2 text-sm text-gray-600">
+                <li><a href="/docs" className="hover:text-blue-600">Documentation</a></li>
                 <li><a href="/ai-demo" className="hover:text-blue-600">AI Integration Demo</a></li>
                 <li><a href="https://github.com/anjor/knowledge_net" target="_blank" rel="noopener noreferrer" className="hover:text-blue-600">GitHub</a></li>
               </ul>
