@@ -16,6 +16,7 @@ export const MarketplaceHome: React.FC = () => {
   const loadFeaturedDatasets = async () => {
     try {
       setLoading(true);
+      console.log('Loading datasets from smart contract...');
       
       // Load datasets from smart contract
       const datasetIds = ['dataset_001', 'dataset_002', 'dataset_003'];
@@ -23,15 +24,20 @@ export const MarketplaceHome: React.FC = () => {
       
       for (const id of datasetIds) {
         try {
+          console.log(`Loading dataset ${id}...`);
           const dataset = await getDataset(id);
           if (dataset) {
+            console.log(`Loaded dataset ${id}:`, dataset);
             loadedDatasets.push(dataset);
+          } else {
+            console.log(`Dataset ${id} not found or invalid`);
           }
         } catch (error) {
           console.warn(`Failed to load dataset ${id}:`, error);
         }
       }
       
+      console.log(`Loaded ${loadedDatasets.length} datasets total`);
       setDatasets(loadedDatasets);
     } catch (error) {
       console.error('Failed to load datasets:', error);

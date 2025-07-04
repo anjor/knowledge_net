@@ -18,10 +18,9 @@ export class Web3Service {
     this.initializeProvider();
   }
 
-  private async initializeProvider() {
+  private initializeProvider() {
     if (typeof window !== 'undefined' && window.ethereum) {
       this.provider = new ethers.providers.Web3Provider(window.ethereum);
-      // Don't connect contracts here, wait for wallet connection
     }
   }
 
@@ -40,7 +39,14 @@ export class Web3Service {
   }
 
   private async connectContracts() {
-    if (!this.provider) return;
+    if (!this.provider && typeof window !== 'undefined' && window.ethereum) {
+      this.provider = new ethers.providers.Web3Provider(window.ethereum);
+    }
+    
+    if (!this.provider) {
+      // Fallback to JSON RPC provider for read operations
+      this.provider = new ethers.providers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
+    }
 
     const signer = this.signer || this.provider;
     
@@ -124,10 +130,15 @@ export class Web3Service {
 
   async getDataset(datasetId: string): Promise<any> {
     if (!this.marketplaceContract) {
+      // Try to connect contracts without wallet for read-only operations
+      await this.connectContracts();
+    }
+    
+    if (!this.marketplaceContract) {
       throw new Error('Contract not connected');
     }
 
-    return await this.marketplaceContract.getDataset(datasetId);
+    return await this.marketplaceContract.datasets(datasetId);
   }
 
   async getTotalDatasets(): Promise<number> {
