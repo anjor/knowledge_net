@@ -51,9 +51,6 @@ export default async function handler(
     const limitNum = Number(limit);
     const offsetNum = Number(offset);
 
-    // Get total datasets count from contract
-    const totalDatasets = await web3Service.getTotalDatasets();
-    
     // For demo purposes, return sample datasets that match the search criteria
     // In production, this would query the smart contract for all dataset IDs
     // and fetch their metadata from IPFS

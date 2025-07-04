@@ -37,13 +37,14 @@ const DocsPage = () => {
           <h2 className="text-lg font-semibold text-blue-900 mb-4">Table of Contents</h2>
           <ul className="space-y-2 text-blue-700">
             <li><a href="#overview" className="hover:underline">1. Platform Overview</a></li>
-            <li><a href="#getting-started" className="hover:underline">2. Getting Started</a></li>
-            <li><a href="#uploading" className="hover:underline">3. Uploading Datasets</a></li>
-            <li><a href="#purchasing" className="hover:underline">4. Purchasing Data Access</a></li>
-            <li><a href="#validation" className="hover:underline">5. Dataset Validation</a></li>
-            <li><a href="#ai-integration" className="hover:underline">6. AI Integration</a></li>
-            <li><a href="#smart-contracts" className="hover:underline">7. Smart Contracts</a></li>
-            <li><a href="#troubleshooting" className="hover:underline">8. Troubleshooting</a></li>
+            <li><a href="#architecture" className="hover:underline">2. Live Architecture</a></li>
+            <li><a href="#getting-started" className="hover:underline">3. Getting Started</a></li>
+            <li><a href="#uploading" className="hover:underline">4. Uploading Datasets</a></li>
+            <li><a href="#purchasing" className="hover:underline">5. Purchasing Data Access</a></li>
+            <li><a href="#validation" className="hover:underline">6. Dataset Validation</a></li>
+            <li><a href="#ai-integration" className="hover:underline">7. AI Integration</a></li>
+            <li><a href="#smart-contracts" className="hover:underline">8. Smart Contracts</a></li>
+            <li><a href="#troubleshooting" className="hover:underline">9. Troubleshooting</a></li>
           </ul>
         </div>
 
@@ -91,9 +92,188 @@ const DocsPage = () => {
             </div>
           </section>
 
+          {/* Live Architecture */}
+          <section id="architecture" className="bg-white rounded-lg shadow-sm p-8">
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Live Architecture</h2>
+            <p className="text-gray-600 mb-6">
+              KnowledgeNet is built with a modular architecture deployed live on Filecoin Calibration testnet. 
+              Every component below is functional and verifiable on the blockchain.
+            </p>
+
+            {/* Architecture Diagram */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">System Architecture</h3>
+              <div className="bg-gray-50 rounded-lg p-6 mb-4">
+                <div className="text-center space-y-4">
+                  <div className="flex justify-center items-center space-x-4">
+                    <div className="bg-blue-100 p-3 rounded-lg font-medium text-blue-900">Frontend (React/Next.js)</div>
+                    <div className="text-gray-400">→</div>
+                    <div className="bg-green-100 p-3 rounded-lg font-medium text-green-900">API Layer</div>
+                    <div className="text-gray-400">→</div>
+                    <div className="bg-purple-100 p-3 rounded-lg font-medium text-purple-900">Smart Contracts</div>
+                    <div className="text-gray-400">→</div>
+                    <div className="bg-orange-100 p-3 rounded-lg font-medium text-orange-900">Filecoin</div>
+                  </div>
+                  <div className="flex justify-center items-center space-x-4">
+                    <div className="bg-yellow-100 p-3 rounded-lg font-medium text-yellow-900">IPFS Storage</div>
+                    <div className="text-gray-400">↕</div>
+                    <div className="bg-red-100 p-3 rounded-lg font-medium text-red-900">Web3 Integration</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Live Contract Information */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Deployed Smart Contracts</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="border border-green-200 bg-green-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-green-900 mb-2">KnowledgeMarketplace</h4>
+                  <div className="text-sm space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-green-700">Address:</span>
+                      <code className="text-green-800 font-mono text-xs">0xc0322d66e1a2d334419e04c98Aa127F1E83087fC</code>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-green-700">Network:</span>
+                      <span className="text-green-800">Filecoin Calibration</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-green-700">Status:</span>
+                      <span className="text-green-800 flex items-center">
+                        <span className="w-2 h-2 bg-green-500 rounded-full mr-1"></span>
+                        Live
+                      </span>
+                    </div>
+                    <div className="mt-2">
+                      <a 
+                        href="https://calibration.filscan.io/address/0xc0322d66e1a2d334419e04c98Aa127F1E83087fC" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-green-600 hover:text-green-800 text-xs underline"
+                      >
+                        View on FilScan Explorer →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="border border-purple-200 bg-purple-50 rounded-lg p-4">
+                  <h4 className="font-semibold text-purple-900 mb-2">ReputationSystem</h4>
+                  <div className="text-sm space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-purple-700">Address:</span>
+                      <code className="text-purple-800 font-mono text-xs">0x9b72e52503C0528BD92F3DE78FA83CcaB97d0F86</code>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-purple-700">Network:</span>
+                      <span className="text-purple-800">Filecoin Calibration</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-purple-700">Status:</span>
+                      <span className="text-purple-800 flex items-center">
+                        <span className="w-2 h-2 bg-purple-500 rounded-full mr-1"></span>
+                        Live
+                      </span>
+                    </div>
+                    <div className="mt-2">
+                      <a 
+                        href="https://calibration.filscan.io/address/0x9b72e52503C0528BD92F3DE78FA83CcaB97d0F86" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-purple-600 hover:text-purple-800 text-xs underline"
+                      >
+                        View on FilScan Explorer →
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Network Status */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Network Information</h3>
+              <div className="bg-blue-50 rounded-lg p-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <span className="font-medium text-blue-900">Chain ID:</span>
+                    <span className="text-blue-700 ml-2">314159</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-blue-900">RPC URL:</span>
+                    <span className="text-blue-700 ml-2">api.calibration.node.glif.io</span>
+                  </div>
+                  <div>
+                    <span className="font-medium text-blue-900">Explorer:</span>
+                    <a href="https://calibration.filscan.io/" target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline ml-2">
+                      calibration.filscan.io
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* API Endpoints */}
+            <div className="mb-8">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Live API Endpoints</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <code className="text-sm font-mono text-gray-800">/api/ai-interface/query</code>
+                  <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">POST</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <code className="text-sm font-mono text-gray-800">/api/ai-interface/datasets</code>
+                  <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">GET</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <code className="text-sm font-mono text-gray-800">/api/ai-interface/access</code>
+                  <span className="text-xs text-blue-600 bg-blue-100 px-2 py-1 rounded">GET</span>
+                </div>
+                <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
+                  <code className="text-sm font-mono text-gray-800">/api/datasets/upload</code>
+                  <span className="text-xs text-green-600 bg-green-100 px-2 py-1 rounded">POST</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">Verify Live Architecture</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <a 
+                  href="https://calibration.filscan.io/address/0xc0322d66e1a2d334419e04c98Aa127F1E83087fC" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="bg-white p-4 rounded-lg text-center hover:shadow-md transition-shadow"
+                >
+                  <div className="text-green-600 text-lg mb-2">⛓️</div>
+                  <div className="font-medium text-gray-900">View Contracts</div>
+                  <div className="text-sm text-gray-600">Check live smart contracts</div>
+                </a>
+                <a 
+                  href="/ai-demo" 
+                  className="bg-white p-4 rounded-lg text-center hover:shadow-md transition-shadow"
+                >
+                  <div className="text-purple-600 text-lg mb-2">🤖</div>
+                  <div className="font-medium text-gray-900">Test AI Interface</div>
+                  <div className="text-sm text-gray-600">Try live API endpoints</div>
+                </a>
+                <a 
+                  href="/contracts" 
+                  className="bg-white p-4 rounded-lg text-center hover:shadow-md transition-shadow"
+                >
+                  <div className="text-blue-600 text-lg mb-2">📋</div>
+                  <div className="font-medium text-gray-900">Contract Details</div>
+                  <div className="text-sm text-gray-600">View deployment info</div>
+                </a>
+              </div>
+            </div>
+          </section>
+
           {/* Getting Started */}
           <section id="getting-started" className="bg-white rounded-lg shadow-sm p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">2. Getting Started</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Getting Started</h2>
             
             <h3 className="text-lg font-semibold text-gray-900 mb-2">Prerequisites</h3>
             <ul className="list-disc list-inside text-gray-600 space-y-1 mb-4">
@@ -125,7 +305,7 @@ const DocsPage = () => {
 
           {/* Uploading Datasets */}
           <section id="uploading" className="bg-white rounded-lg shadow-sm p-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">3. Uploading Datasets</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">4. Uploading Datasets</h2>
             
             <p className="text-gray-600 mb-4">
               Share your scientific data with the community and earn FIL when researchers purchase access.

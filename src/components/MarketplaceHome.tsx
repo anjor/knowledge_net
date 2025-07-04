@@ -84,7 +84,10 @@ export const MarketplaceHome: React.FC = () => {
               high-quality datasets.
             </p>
             <div className="flex justify-center space-x-4">
-              <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
+              <button 
+                onClick={() => document.getElementById('datasets-section')?.scrollIntoView({ behavior: 'smooth' })}
+                className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition"
+              >
                 Browse Datasets
               </button>
               <button 
@@ -107,7 +110,7 @@ export const MarketplaceHome: React.FC = () => {
 
 
       {/* Featured Datasets */}
-      <section className="py-8">
+      <section id="datasets-section" className="py-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <h3 className="text-2xl font-bold text-gray-900 mb-6">
             Available Datasets

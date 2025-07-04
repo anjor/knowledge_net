@@ -18,11 +18,15 @@ const AIDemoPage: React.FC = () => {
   const handleSearch = async () => {
     try {
       setLoading(true);
+      console.log('Starting dataset search...');
       const searchResult = await sdk.searchDatasets({
         limit: 10,
         verified: true
       });
+      console.log('Search result:', searchResult);
+      console.log('Datasets found:', searchResult.datasets);
       setDatasets(searchResult.datasets);
+      console.log('Datasets state updated');
     } catch (error: any) {
       console.error('Search error:', error);
       alert('Search failed: ' + error.message);
