@@ -87,7 +87,10 @@ export const MarketplaceHome: React.FC = () => {
               <button className="bg-white text-blue-600 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition">
                 Browse Datasets
               </button>
-              <button className="border border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition">
+              <button 
+                onClick={() => window.location.href = '/upload'}
+                className="border border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-600 transition"
+              >
                 Contribute Data
               </button>
             </div>
@@ -158,7 +161,10 @@ export const MarketplaceHome: React.FC = () => {
             Join thousands of researchers and organizations earning rewards 
             by sharing verified scientific datasets on our decentralized marketplace.
           </p>
-          <button className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+          <button 
+            onClick={() => window.location.href = '/upload'}
+            className="bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition"
+          >
             Upload Dataset
           </button>
         </div>

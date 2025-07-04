@@ -81,13 +81,15 @@ export class Web3Service {
       throw new Error('Contract not connected');
     }
 
-    const metadataString = JSON.stringify(metadata);
+    const metadataHash = "QmMetadata" + Math.random().toString(36).substring(2, 48); // Mock metadata hash
+    const datasetId = "dataset_" + Date.now(); // Generate unique ID
     
-    return await this.marketplaceContract.registerDataset(
+    return await this.marketplaceContract.submitDataset(
+      datasetId,
       ipfsHash,
-      metadataString,
+      metadataHash,
       priceInWei,
-      { value: ethers.utils.parseEther('0.01') } // Registration fee
+      { gasLimit: 25000000 } // Proper gas limit
     );
   }
 
