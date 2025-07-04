@@ -142,7 +142,7 @@ const AboutPage = () => {
         {/* CTA */}
         <div className="text-center">
           <Link 
-            href="/marketplace" 
+            href="/" 
             className="bg-blue-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-700 transition-colors mr-4"
           >
             Explore Marketplace
