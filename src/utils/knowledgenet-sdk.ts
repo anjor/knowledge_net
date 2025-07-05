@@ -55,16 +55,13 @@ export interface SearchOptions {
 
 export class KnowledgeNetSDK {
   private baseUrl: string;
-  private apiKey: string;
-  private userAddress?: string;
+  private userAddress: string;
 
   constructor(config: {
     baseUrl?: string;
-    apiKey: string;
-    userAddress?: string;
+    userAddress: string;
   }) {
     this.baseUrl = config.baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
-    this.apiKey = config.apiKey;
     this.userAddress = config.userAddress;
   }
 
@@ -97,7 +94,7 @@ export class KnowledgeNetSDK {
 
     const response = await fetch(`${this.baseUrl}/api/ai-interface/datasets?${searchParams}`, {
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'x-requester-address': this.userAddress,
         'Content-Type': 'application/json',
         'Cache-Control': 'no-cache'
       }
@@ -123,20 +120,15 @@ export class KnowledgeNetSDK {
    * Query a specific dataset with an AI prompt
    */
   async queryDataset(datasetId: string, query: string): Promise<QueryResult> {
-    if (!this.userAddress) {
-      throw new Error('User address required for dataset queries. Set userAddress in constructor.');
-    }
-
     const response = await fetch(`${this.baseUrl}/api/ai-interface/query`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'x-requester-address': this.userAddress,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         datasetId,
         query,
-        apiKey: this.apiKey,
         userId: this.userAddress
       })
     });
@@ -158,14 +150,10 @@ export class KnowledgeNetSDK {
     cost: string;
     transactionHash?: string;
   }> {
-    if (!this.userAddress) {
-      throw new Error('User address required for dataset access. Set userAddress in constructor.');
-    }
-
     const response = await fetch(`${this.baseUrl}/api/ai-interface/access`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'x-requester-address': this.userAddress,
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
@@ -214,16 +202,12 @@ export class KnowledgeNetSDK {
   }> {
     const searchParams = new URLSearchParams({
       timeRange,
-      apiKey: this.apiKey
+      userAddress: this.userAddress
     });
-
-    if (this.userAddress) {
-      searchParams.set('userAddress', this.userAddress);
-    }
 
     const response = await fetch(`${this.baseUrl}/api/ai-interface/usage?${searchParams}`, {
       headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
+        'x-requester-address': this.userAddress,
         'Content-Type': 'application/json'
       }
     });
@@ -280,8 +264,7 @@ export class KnowledgeNetSDK {
 // Export convenience factory function
 export function createKnowledgeNetClient(config: {
   baseUrl?: string;
-  apiKey: string;
-  userAddress?: string;
+  userAddress: string;
 }): KnowledgeNetSDK {
   return new KnowledgeNetSDK(config);
 }
@@ -289,7 +272,6 @@ export function createKnowledgeNetClient(config: {
 // Example usage:
 /*
 const client = createKnowledgeNetClient({
-  apiKey: 'your-api-key',
   userAddress: '0xYourWalletAddress'
 });
 

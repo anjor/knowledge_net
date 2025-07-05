@@ -36,6 +36,7 @@
     "next": "^14.0.0",
     "react": "^18.0.0",
     "react-dom": "^18.0.0",
+    "react-hot-toast": "^2.5.2",
     "web3": "^4.0.0"
   },
   "devDependencies": {

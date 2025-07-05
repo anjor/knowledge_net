@@ -4,7 +4,6 @@ import { web3Service } from '../../../utils/web3';
 interface QueryRequest {
   datasetId: string;
   query: string;
-  apiKey?: string;
   userId?: string;
 }
 
@@ -15,6 +14,7 @@ interface QueryResponse {
   usage?: {
     tokensUsed: number;
     cost: string;
+    wasFree?: boolean;
   };
   provenance?: {
     datasetId: string;
@@ -38,7 +38,10 @@ export default async function handler(
   }
 
   try {
-    const { datasetId, query, apiKey, userId }: QueryRequest = req.body;
+    const { datasetId, query, userId }: QueryRequest = req.body;
+    
+    // Get user address from header as well for SDK compatibility
+    const userAddress = userId || req.headers['x-requester-address'] as string;
 
     // Validate required fields
     if (!datasetId || !query) {
@@ -48,31 +51,36 @@ export default async function handler(
       });
     }
 
-    // In production, validate API key and user access
-    if (!apiKey) {
+    if (!userAddress) {
       return res.status(401).json({
         success: false,
-        error: 'API key required for data access'
+        error: 'User address required for data access'
       });
     }
 
     // Check if user has access to this dataset (via smart contract)
-    // For demo purposes, allow access for presentation smoothness if contract fails
-    let hasAccess = true;
+    let hasAccess = false;
+    let wasFree = false;
+    
     try {
-      if (userId) {
-        hasAccess = await web3Service.hasAccess(datasetId, userId);
-        console.log(`Smart contract access check for user ${userId} on dataset ${datasetId}: ${hasAccess}`);
+      hasAccess = await web3Service.hasAccess(datasetId, userAddress);
+      console.log(`Smart contract access check for user ${userAddress} on dataset ${datasetId}: ${hasAccess}`);
+      
+      if (hasAccess) {
+        wasFree = true;
+        console.log('User owns dataset - free query');
       }
     } catch (error) {
       console.warn('Smart contract access check failed, allowing for demo:', error);
       hasAccess = true; // Allow access for demo purposes
     }
     
-    if (!hasAccess && userId) {
+    if (!hasAccess) {
+      // In production, this would charge a small fee for the query
+      // For now, we'll return an error suggesting dataset purchase
       return res.status(403).json({
         success: false,
-        error: 'Access denied. Purchase dataset access first.'
+        error: 'You don\'t own this dataset. Purchase it for unlimited AI queries, or wait for our upcoming pay-per-query feature!'
       });
     }
 
@@ -125,7 +133,8 @@ export default async function handler(
     // Calculate usage cost (simplified pricing model)
     const usage = {
       tokensUsed: query.length * 2, // Simple token estimation
-      cost: '0.001' // 0.001 FIL per query
+      cost: wasFree ? '0' : '0.001', // Free if user owns dataset, otherwise 0.001 FIL
+      wasFree
     };
 
     // Build provenance information
