@@ -8,9 +8,9 @@ async function main(hre) {
     console.log("Deployer address:", deployer.address);
     
     const balance = await deployer.getBalance();
-    console.log("Balance:", ethers.utils.formatEther(balance), "tFIL");
+    console.log("Balance:", ethers.formatEther(balance), "tFIL");
     
-    if (balance.eq(0)) {
+    if (balance === 0n) {
       console.log("⚠️  Balance is 0 - You need test FIL!");
       console.log("Get test FIL from: https://faucet.calibnet.chainsafe-fil.io/");
       console.log("Use your address:", deployer.address);

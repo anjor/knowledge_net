@@ -20,12 +20,12 @@ export interface StorageOffer {
 }
 
 class FilecoinService {
-  private provider: ethers.providers.JsonRpcProvider;
+  private provider: ethers.JsonRpcProvider;
   private signer?: ethers.Signer;
 
   constructor() {
     const rpcUrl = process.env.FILECOIN_RPC_URL || 'https://api.calibration.node.glif.io/rpc/v1';
-    this.provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+    this.provider = new ethers.JsonRpcProvider(rpcUrl);
     
     if (process.env.PRIVATE_KEY) {
       this.signer = new ethers.Wallet(process.env.PRIVATE_KEY, this.provider);
@@ -82,19 +82,19 @@ class FilecoinService {
       return [
         {
           provider: 'f01000',
-          price: ethers.utils.parseUnits('0.01', 18).toString(),
+          price: ethers.parseUnits('0.01', 18).toString(),
           duration: duration,
           reputation: 95
         },
         {
           provider: 'f02000',
-          price: ethers.utils.parseUnits('0.008', 18).toString(),
+          price: ethers.parseUnits('0.008', 18).toString(),
           duration: duration,
           reputation: 88
         },
         {
           provider: 'f03000',
-          price: ethers.utils.parseUnits('0.012', 18).toString(),
+          price: ethers.parseUnits('0.012', 18).toString(),
           duration: duration,
           reputation: 92
         }

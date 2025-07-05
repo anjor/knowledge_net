@@ -6,7 +6,7 @@ async function main() {
   
   try {
     // Create provider
-    const provider = new ethers.providers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
+    const provider = new ethers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
     
     // Create wallet from private key
     const wallet = new ethers.Wallet(`0x${process.env.PRIVATE_KEY}`, provider);
@@ -19,9 +19,9 @@ async function main() {
     
     // Check balance
     const balance = await wallet.getBalance();
-    console.log("Balance:", ethers.utils.formatEther(balance), "tFIL");
+    console.log("Balance:", ethers.formatEther(balance), "tFIL");
     
-    if (balance.eq(0)) {
+    if (balance === 0n) {
       console.log("\n⚠️  You need test FIL to deploy contracts!");
       console.log("📝 Steps to get test FIL:");
       console.log("1. Go to: https://faucet.calibnet.chainsafe-fil.io/");

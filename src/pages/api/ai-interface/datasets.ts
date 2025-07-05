@@ -50,7 +50,7 @@ export default async function handler(
     const qualityThreshold = Number(minQualityScore);
     const limitNum = Number(limit);
     const offsetNum = Number(offset);
-    const verifiedBool = verified === 'true' ? true : verified === 'false' ? false : undefined;
+    const verifiedBool = typeof verified === 'string' ? (verified === 'true' ? true : verified === 'false' ? false : undefined) : undefined;
 
     console.log('API Request params:', {
       tags: tagsArray,

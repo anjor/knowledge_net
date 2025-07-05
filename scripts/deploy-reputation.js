@@ -5,14 +5,14 @@ async function main() {
   console.log("Deploying ReputationSystem contract...");
 
   // Create provider and wallet
-  const provider = new ethers.providers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
+  const provider = new ethers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
   const deployer = new ethers.Wallet(`0x${process.env.PRIVATE_KEY}`, provider);
   
   console.log("Deploying with account:", deployer.address);
   
   // Check balance
   const balance = await deployer.getBalance();
-  console.log("Account balance:", ethers.utils.formatEther(balance), "tFIL");
+  console.log("Account balance:", ethers.formatEther(balance), "tFIL");
 
   try {
     // Marketplace address from previous deployment
@@ -25,9 +25,9 @@ async function main() {
     console.log("Deploying ReputationSystem...");
     const ReputationFactory = new ethers.ContractFactory(reputationArtifact.abi, reputationArtifact.bytecode, deployer);
     const reputation = await ReputationFactory.deploy(marketplaceAddress);
-    await reputation.deployed();
+    await reputation.waitForDeployment();
     
-    console.log("✅ ReputationSystem deployed to:", reputation.address);
+    console.log("✅ ReputationSystem deployed to:", await reputation.getAddress());
 
     // Verify deployment
     const pioneerBadge = await reputation.badges("PIONEER");
@@ -43,8 +43,8 @@ async function main() {
           address: marketplaceAddress
         },
         ReputationSystem: {
-          address: reputation.address,
-          transactionHash: reputation.deployTransaction?.hash
+          address: await reputation.getAddress(),
+          transactionHash: reputation.deploymentTransaction()?.hash
         }
       }
     };
@@ -54,7 +54,7 @@ async function main() {
     console.log("Network: Filecoin Calibration Testnet");
     console.log("Deployer:", deployer.address);
     console.log("KnowledgeMarketplace:", marketplaceAddress);
-    console.log("ReputationSystem:", reputation.address);
+    console.log("ReputationSystem:", await reputation.getAddress());
     console.log("=====================================");
 
     // Save deployment info
@@ -74,7 +74,7 @@ async function main() {
         abi: marketplaceArtifact.abi
       },
       ReputationSystem: {
-        address: reputation.address,
+        address: await reputation.getAddress(),
         abi: reputationArtifact.abi
       }
     };

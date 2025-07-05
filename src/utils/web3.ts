@@ -9,7 +9,7 @@ declare global {
 }
 
 export class Web3Service {
-  private provider: ethers.providers.Web3Provider | null = null;
+  private provider: ethers.BrowserProvider | ethers.JsonRpcProvider | null = null;
   private signer: ethers.Signer | null = null;
   private marketplaceContract: ethers.Contract | null = null;
   private reputationContract: ethers.Contract | null = null;
@@ -20,7 +20,7 @@ export class Web3Service {
 
   private initializeProvider() {
     if (typeof window !== 'undefined' && window.ethereum) {
-      this.provider = new ethers.providers.Web3Provider(window.ethereum);
+      this.provider = new ethers.BrowserProvider(window.ethereum);
     }
   }
 
@@ -40,12 +40,12 @@ export class Web3Service {
 
   private async connectContracts() {
     if (!this.provider && typeof window !== 'undefined' && window.ethereum) {
-      this.provider = new ethers.providers.Web3Provider(window.ethereum);
+      this.provider = new ethers.BrowserProvider(window.ethereum);
     }
     
     if (!this.provider) {
       // Fallback to JSON RPC provider for read operations
-      this.provider = new ethers.providers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
+      this.provider = new ethers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
     }
 
     const signer = this.signer || this.provider;
@@ -76,7 +76,7 @@ export class Web3Service {
       license: string;
     },
     priceInWei: string
-  ): Promise<ethers.ContractTransaction> {
+  ): Promise<ethers.ContractTransactionResponse> {
     if (!this.marketplaceContract || !this.signer) {
       throw new Error('Contract not connected');
     }
@@ -93,7 +93,7 @@ export class Web3Service {
     );
   }
 
-  async purchaseDataset(datasetId: string, priceInWei: string): Promise<ethers.ContractTransaction> {
+  async purchaseDataset(datasetId: string, priceInWei: string): Promise<ethers.ContractTransactionResponse> {
     // Ensure wallet and contracts are connected
     if (!this.signer || !this.marketplaceContract) {
       // Try to reconnect
@@ -160,7 +160,7 @@ export class Web3Service {
     }
 
     const total = await this.marketplaceContract.getTotalDatasets();
-    return total.toNumber();
+    return Number(total);
   }
 
   async getDatasetsByContributor(contributor: string): Promise<string[]> {
@@ -215,7 +215,7 @@ export class Web3Service {
     datasetId: string,
     qualityScore: number,
     comments: string
-  ): Promise<ethers.ContractTransaction> {
+  ): Promise<ethers.ContractTransactionResponse> {
     if (!this.reputationContract || !this.signer) {
       throw new Error('Contract not connected');
     }

@@ -3,7 +3,7 @@ require('dotenv').config();
 const contractsInfo = require('../src/utils/contracts.json');
 
 async function getMarketplaceContract(withSigner = false) {
-  const provider = new ethers.providers.JsonRpcProvider('https://api.calibration.node.glif.io/rpc/v1');
+  const provider = new ethers.JsonRpcProvider('https://api.calibration.node.glif.io/rpc/v1');
   const signer = withSigner ? new ethers.Wallet(process.env.PRIVATE_KEY, provider) : provider;
   
   return new ethers.Contract(
@@ -20,11 +20,11 @@ async function checkDataset(datasetId) {
   console.log(`Dataset ${datasetId} details:`);
   console.log('Exists:', dataset.id !== '');
   console.log('Contributor:', dataset.contributor);
-  console.log('Price:', ethers.utils.formatEther(dataset.price), 'FIL');
+  console.log('Price:', ethers.formatEther(dataset.price), 'FIL');
   console.log('Verified:', dataset.verified);
-  console.log('Quality Score:', dataset.qualityScore.toString());
+  console.log('Quality Score:', Number(dataset.qualityScore));
   console.log('IPFS Hash:', dataset.ipfsHash);
-  console.log('Download Count:', dataset.downloadCount.toString());
+  console.log('Download Count:', Number(dataset.downloadCount));
   
   return dataset;
 }
@@ -40,7 +40,7 @@ async function validateDataset(datasetId, qualityScore = 85) {
     if (!validatorInfo.active) {
       console.log('Registering as validator first...');
       const registerTx = await marketplace.registerValidator({
-        value: ethers.utils.parseEther('1'),
+        value: ethers.parseEther('1'),
         gasLimit: 25000000
       });
       await registerTx.wait();
@@ -68,7 +68,7 @@ async function testPurchase(datasetId) {
   
   try {
     const dataset = await marketplace.datasets(datasetId);
-    console.log(`Testing purchase of ${datasetId} for ${ethers.utils.formatEther(dataset.price)} FIL`);
+    console.log(`Testing purchase of ${datasetId} for ${ethers.formatEther(dataset.price)} FIL`);
     
     const tx = await marketplace.purchaseDataset(datasetId, {
       value: dataset.price,
@@ -78,7 +78,7 @@ async function testPurchase(datasetId) {
     console.log('Transaction sent:', tx.hash);
     const receipt = await tx.wait();
     console.log('✅ Purchase successful! Block:', receipt.blockNumber);
-    console.log('Gas used:', receipt.gasUsed.toString());
+    console.log('Gas used:', Number(receipt.gasUsed));
     
     return tx.hash;
   } catch (error) {

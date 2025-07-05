@@ -5,14 +5,14 @@ async function main() {
   console.log("Deploying KnowledgeNet contracts to Filecoin network...");
 
   // Create provider and wallet
-  const provider = new ethers.providers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
+  const provider = new ethers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
   const deployer = new ethers.Wallet(`0x${process.env.PRIVATE_KEY}`, provider);
   
   console.log("Deploying contracts with account:", deployer.address);
   
   // Check balance
   const balance = await deployer.getBalance();
-  console.log("Account balance:", ethers.utils.formatEther(balance), "tFIL");
+  console.log("Account balance:", ethers.formatEther(balance), "tFIL");
 
   try {
     // Load contract artifacts
@@ -23,17 +23,17 @@ async function main() {
     console.log("\n1. Deploying KnowledgeMarketplace...");
     const MarketplaceFactory = new ethers.ContractFactory(marketplaceArtifact.abi, marketplaceArtifact.bytecode, deployer);
     const marketplace = await MarketplaceFactory.deploy();
-    await marketplace.deployed();
+    await marketplace.waitForDeployment();
     
-    console.log("✅ KnowledgeMarketplace deployed to:", marketplace.address);
+    console.log("✅ KnowledgeMarketplace deployed to:", await marketplace.getAddress());
 
     // Deploy ReputationSystem contract
     console.log("\n2. Deploying ReputationSystem...");
     const ReputationFactory = new ethers.ContractFactory(reputationArtifact.abi, reputationArtifact.bytecode, deployer);
     const reputation = await ReputationFactory.deploy(marketplace.address);
-    await reputation.deployed();
+    await reputation.waitForDeployment();
     
-    console.log("✅ ReputationSystem deployed to:", reputation.address);
+    console.log("✅ ReputationSystem deployed to:", await reputation.getAddress());
 
     // Verify deployment by calling a read function
     console.log("\n3. Verifying deployments...");
@@ -50,12 +50,12 @@ async function main() {
       deployer: deployer.address,
       contracts: {
         KnowledgeMarketplace: {
-          address: marketplace.address,
-          transactionHash: marketplace.deployTransaction?.hash
+          address: await marketplace.getAddress(),
+          transactionHash: marketplace.deploymentTransaction()?.hash
         },
         ReputationSystem: {
-          address: reputation.address,
-          transactionHash: reputation.deployTransaction?.hash
+          address: await reputation.getAddress(),
+          transactionHash: reputation.deploymentTransaction()?.hash
         }
       }
     };
@@ -64,8 +64,8 @@ async function main() {
     console.log("=====================================");
     console.log("Network: Filecoin Calibration Testnet");
     console.log("Deployer:", deployer.address);
-    console.log("KnowledgeMarketplace:", marketplace.address);
-    console.log("ReputationSystem:", reputation.address);
+    console.log("KnowledgeMarketplace:", await marketplace.getAddress());
+    console.log("ReputationSystem:", await reputation.getAddress());
     console.log("=====================================");
 
     // Save to file for frontend integration
@@ -80,11 +80,11 @@ async function main() {
     
     const abiInfo = {
       KnowledgeMarketplace: {
-        address: marketplace.address,
+        address: await marketplace.getAddress(),
         abi: marketplaceArtifact.abi
       },
       ReputationSystem: {
-        address: reputation.address,
+        address: await reputation.getAddress(),
         abi: reputationArtifact.abi
       }
     };

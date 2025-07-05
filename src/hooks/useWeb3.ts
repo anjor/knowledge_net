@@ -69,10 +69,12 @@ export const useWeb3 = () => {
       const priceInWei = web3Service.parsePrice(priceInFIL);
       const tx = await web3Service.registerDataset(ipfsHash, metadata, priceInWei);
       
-      await tx.wait(); // Wait for transaction confirmation
+      // In ethers v6, tx.wait() returns a TransactionReceipt
+      const receipt = await tx.wait();
       await refreshBalance();
       
-      return tx.hash;
+      // In ethers v6, transaction hash is accessible from the receipt
+      return receipt?.hash || tx.hash;
     } catch (err: any) {
       setError(err.message || 'Failed to register dataset');
       throw err;
@@ -88,10 +90,12 @@ export const useWeb3 = () => {
 
       const tx = await web3Service.purchaseDataset(datasetId, priceInWei);
       
-      await tx.wait(); // Wait for transaction confirmation
+      // In ethers v6, tx.wait() returns a TransactionReceipt
+      const receipt = await tx.wait();
       await refreshBalance();
       
-      return tx.hash;
+      // In ethers v6, transaction hash is accessible from the receipt
+      return receipt?.hash || tx.hash;
     } catch (err: any) {
       setError(err.message || 'Failed to purchase dataset');
       throw err;
@@ -111,10 +115,12 @@ export const useWeb3 = () => {
 
       const tx = await web3Service.validateDataset(datasetId, qualityScore, comments);
       
-      await tx.wait(); // Wait for transaction confirmation
+      // In ethers v6, tx.wait() returns a TransactionReceipt
+      const receipt = await tx.wait();
       await refreshBalance();
       
-      return tx.hash;
+      // In ethers v6, transaction hash is accessible from the receipt
+      return receipt?.hash || tx.hash;
     } catch (err: any) {
       setError(err.message || 'Failed to validate dataset');
       throw err;
@@ -174,10 +180,10 @@ export const useWeb3 = () => {
         metadata,
         contributor: contractData.contributor,
         price: web3Service.formatPrice(contractData.price),
-        downloadCount: contractData.downloadCount.toNumber(),
-        qualityScore: contractData.qualityScore.toNumber(),
+        downloadCount: Number(contractData.downloadCount),
+        qualityScore: Number(contractData.qualityScore),
         verified: contractData.verified,
-        timestamp: contractData.timestamp.toNumber()
+        timestamp: Number(contractData.timestamp)
       };
     } catch (err: any) {
       console.error('Get dataset error:', err);
@@ -228,8 +234,8 @@ export const useWeb3 = () => {
       const badges = await web3Service.getUserBadges(address);
       
       return {
-        score: reputation.score.toNumber(),
-        validationsCount: reputation.validationsCount.toNumber(),
+        score: Number(reputation.score),
+        validationsCount: Number(reputation.validationsCount),
         totalEarnings: web3Service.formatPrice(reputation.totalEarnings),
         badges
       };
