@@ -1,18 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { KnowledgeNetSDK } from '../utils/knowledgenet-sdk';
+import { useWallet } from '../contexts/WalletContext';
+import { toast } from 'react-hot-toast';
 
 const AIDemoPage: React.FC = () => {
-  const [apiKey, setApiKey] = useState('demo-key-12345');
-  const [userAddress, setUserAddress] = useState('0x40696c3503CD8248da4b0bF9d02432Dc22ec274A');
+  const { userAddress, isConnecting, connectWallet, web3Service } = useWallet();
   const [query, setQuery] = useState('');
   const [selectedDataset, setSelectedDataset] = useState('dataset_001');
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [datasets, setDatasets] = useState<any[]>([]);
+  const [datasetOwnership, setDatasetOwnership] = useState<Record<string, boolean>>({});
 
   const sdk = new KnowledgeNetSDK({
-    apiKey,
-    userAddress
+    userAddress: userAddress || ''
   });
 
   const handleSearch = async () => {
@@ -27,9 +28,24 @@ const AIDemoPage: React.FC = () => {
       console.log('Datasets found:', searchResult.datasets);
       setDatasets(searchResult.datasets);
       console.log('Datasets state updated');
+      
+      // Check ownership for each dataset if wallet is connected
+      if (userAddress && searchResult.datasets.length > 0) {
+        const ownership: Record<string, boolean> = {};
+        for (const dataset of searchResult.datasets) {
+          try {
+            const hasAccess = await web3Service.hasAccess(dataset.id, userAddress);
+            ownership[dataset.id] = hasAccess;
+          } catch (error) {
+            console.error(`Error checking access for ${dataset.id}:`, error);
+            ownership[dataset.id] = false;
+          }
+        }
+        setDatasetOwnership(ownership);
+      }
     } catch (error: any) {
       console.error('Search error:', error);
-      alert('Search failed: ' + error.message);
+      toast.error('Search failed: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -37,7 +53,12 @@ const AIDemoPage: React.FC = () => {
 
   const handleQuery = async () => {
     if (!query.trim()) {
-      alert('Please enter a query');
+      toast.error('Please enter a query');
+      return;
+    }
+
+    if (!userAddress) {
+      toast.error('Please connect your wallet first');
       return;
     }
 
@@ -47,7 +68,7 @@ const AIDemoPage: React.FC = () => {
       setResult(queryResult);
     } catch (error: any) {
       console.error('Query error:', error);
-      alert('Query failed: ' + error.message);
+      toast.error('Query failed: ' + error.message);
     } finally {
       setLoading(false);
     }
@@ -75,35 +96,28 @@ const AIDemoPage: React.FC = () => {
           </p>
         </div>
 
-        {/* Configuration */}
+        {/* Wallet Connection */}
         <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
-          <h2 className="text-xl font-semibold mb-4">API Configuration</h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                API Key
-              </label>
-              <input
-                type="text"
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="Enter your API key"
-              />
+          <h2 className="text-xl font-semibold mb-4">Wallet Connection</h2>
+          {!userAddress ? (
+            <div className="text-center">
+              <p className="text-gray-600 mb-4">
+                Connect your wallet to access the AI query interface
+              </p>
+              <button
+                onClick={connectWallet}
+                disabled={isConnecting}
+                className="px-6 py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 font-medium"
+              >
+                {isConnecting ? 'Connecting...' : 'Connect Wallet'}
+              </button>
             </div>
+          ) : (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                User Address
-              </label>
-              <input
-                type="text"
-                value={userAddress}
-                onChange={(e) => setUserAddress(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                placeholder="0x..."
-              />
+              <p className="text-sm text-gray-600 mb-2">Connected Address:</p>
+              <p className="font-mono text-sm bg-gray-100 p-2 rounded">{userAddress}</p>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Dataset Search */}
@@ -146,6 +160,11 @@ const AIDemoPage: React.FC = () => {
                     <span>Quality: {dataset.qualityScore}%</span>
                     <span>Price: {dataset.price} FIL</span>
                   </div>
+                  {datasetOwnership[dataset.id] && (
+                    <div className="mt-2 px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full text-center">
+                      ✓ You own this dataset
+                    </div>
+                  )}
                   <div className="flex flex-wrap gap-1 mt-2">
                     {dataset.metadata.tags.slice(0, 3).map((tag: string, index: number) => (
                       <span
@@ -204,10 +223,10 @@ const AIDemoPage: React.FC = () => {
 
           <button
             onClick={handleQuery}
-            disabled={loading || !query.trim()}
+            disabled={loading || !query.trim() || !userAddress}
             className="w-full py-3 bg-purple-600 text-white rounded-lg hover:bg-purple-700 disabled:opacity-50 font-medium"
           >
-            {loading ? 'Processing Query...' : 'Execute AI Query'}
+            {!userAddress ? 'Connect Wallet First' : loading ? 'Processing Query...' : 'Execute AI Query'}
           </button>
         </div>
 
@@ -237,7 +256,7 @@ const AIDemoPage: React.FC = () => {
                     <h3 className="font-medium text-blue-800 mb-2">Usage & Cost</h3>
                     <div className="text-sm text-blue-700 space-y-1">
                       <p><strong>Tokens Used:</strong> {result.usage.tokensUsed}</p>
-                      <p><strong>Cost:</strong> {result.usage.cost} FIL</p>
+                      <p><strong>Cost:</strong> {result.usage.cost} FIL {result.usage.wasFree ? '(Free - You own this dataset)' : ''}</p>
                     </div>
                   </div>
                 )}
@@ -268,8 +287,7 @@ const AIDemoPage: React.FC = () => {
 import { createKnowledgeNetClient } from 'knowledgenet-sdk';
 
 const client = createKnowledgeNetClient({
-  apiKey: '${apiKey}',
-  userAddress: '${userAddress}'
+  userAddress: '${userAddress || '0x...'}'
 });
 
 // Search for datasets
