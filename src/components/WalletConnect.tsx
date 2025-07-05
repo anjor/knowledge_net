@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useWallet } from '../contexts/WalletContext';
 
 interface WalletConnectProps {
   onConnect: (address: string) => void;
@@ -11,90 +12,21 @@ declare global {
 }
 
 export const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect }) => {
-  const [isConnecting, setIsConnecting] = useState(false);
-  const [connectedAddress, setConnectedAddress] = useState<string | null>(null);
+  const { userAddress, isConnecting, connectWallet: contextConnectWallet, disconnectWallet: contextDisconnectWallet } = useWallet();
   const [balance, setBalance] = useState<string>('0');
 
   useEffect(() => {
-    checkIfWalletIsConnected();
-  }, []);
-
-  const checkIfWalletIsConnected = async () => {
-    try {
-      if (window.ethereum) {
-        const accounts = await window.ethereum.request({ method: 'eth_accounts' });
-        if (accounts.length > 0) {
-          setConnectedAddress(accounts[0]);
-          onConnect(accounts[0]);
-          await updateBalance(accounts[0]);
-        }
-      }
-    } catch (error) {
-      console.error('Error checking wallet connection:', error);
+    if (userAddress) {
+      onConnect(userAddress);
+      updateBalance(userAddress);
     }
-  };
+  }, [userAddress, onConnect]);
+
 
   const connectWallet = async () => {
-    try {
-      setIsConnecting(true);
-      
-      if (!window.ethereum) {
-        alert('Please install MetaMask or another Web3 wallet');
-        return;
-      }
-
-      // Request account access
-      const accounts = await window.ethereum.request({
-        method: 'eth_requestAccounts',
-      });
-
-      if (accounts.length > 0) {
-        // Switch to Filecoin network if not already connected
-        await switchToFilecoinNetwork();
-        
-        setConnectedAddress(accounts[0]);
-        onConnect(accounts[0]);
-        await updateBalance(accounts[0]);
-      }
-    } catch (error) {
-      console.error('Error connecting wallet:', error);
-      alert('Failed to connect wallet. Please try again.');
-    } finally {
-      setIsConnecting(false);
-    }
+    await contextConnectWallet();
   };
 
-  const switchToFilecoinNetwork = async () => {
-    try {
-      // Try to switch to Filecoin Calibration testnet
-      await window.ethereum.request({
-        method: 'wallet_switchEthereumChain',
-        params: [{ chainId: '0x4CB2F' }], // 314159 in hex (Calibration testnet)
-      });
-    } catch (switchError: any) {
-      // If the network doesn't exist, add it
-      if (switchError.code === 4902) {
-        try {
-          await window.ethereum.request({
-            method: 'wallet_addEthereumChain',
-            params: [{
-              chainId: '0x4CB2F',
-              chainName: 'Filecoin Calibration',
-              nativeCurrency: {
-                name: 'Test Filecoin',
-                symbol: 'tFIL',
-                decimals: 18,
-              },
-              rpcUrls: ['https://api.calibration.node.glif.io/rpc/v1'],
-              blockExplorerUrls: ['https://calibration.filscan.io/'],
-            }],
-          });
-        } catch (addError) {
-          console.error('Error adding Filecoin network:', addError);
-        }
-      }
-    }
-  };
 
   const updateBalance = async (address: string) => {
     try {
@@ -115,7 +47,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect }) => {
   };
 
   const disconnectWallet = () => {
-    setConnectedAddress(null);
+    contextDisconnectWallet();
     setBalance('0');
     onConnect('');
   };
@@ -124,7 +56,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect }) => {
     return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  if (connectedAddress) {
+  if (userAddress) {
     return (
       <div className="flex items-center space-x-4">
         {/* Balance Display */}
@@ -141,7 +73,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect }) => {
         <div className="relative group">
           <button className="flex items-center space-x-2 bg-green-100 text-green-800 rounded-lg px-4 py-2 hover:bg-green-200 transition">
             <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-            <span className="font-medium">{formatAddress(connectedAddress)}</span>
+            <span className="font-medium">{formatAddress(userAddress)}</span>
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
             </svg>
@@ -151,12 +83,12 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect }) => {
           <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
             <div className="p-3 border-b">
               <p className="text-sm text-gray-500">Connected Account</p>
-              <p className="font-mono text-sm text-gray-900 break-all">{connectedAddress}</p>
+              <p className="font-mono text-sm text-gray-900 break-all">{userAddress}</p>
               <p className="text-sm text-gray-600 mt-1">{balance} FIL</p>
             </div>
             <div className="p-2">
               <button
-                onClick={() => navigator.clipboard.writeText(connectedAddress)}
+                onClick={() => navigator.clipboard.writeText(userAddress)}
                 className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -165,7 +97,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({ onConnect }) => {
                 Copy Address
               </button>
               <button
-                onClick={() => updateBalance(connectedAddress)}
+                onClick={() => updateBalance(userAddress)}
                 className="flex items-center w-full px-3 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded"
               >
                 <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

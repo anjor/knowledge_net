@@ -1,36 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { KnowledgeNetSDK } from '../utils/knowledgenet-sdk';
-import { Web3Service } from '../utils/web3';
+import { useWallet } from '../contexts/WalletContext';
 import { toast } from 'react-hot-toast';
 
 const AIDemoPage: React.FC = () => {
-  const [userAddress, setUserAddress] = useState<string | null>(null);
+  const { userAddress, isConnecting, connectWallet, web3Service } = useWallet();
   const [query, setQuery] = useState('');
   const [selectedDataset, setSelectedDataset] = useState('dataset_001');
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [datasets, setDatasets] = useState<any[]>([]);
-  const [web3Service] = useState(() => new Web3Service());
-  const [isConnecting, setIsConnecting] = useState(false);
   const [datasetOwnership, setDatasetOwnership] = useState<Record<string, boolean>>({});
 
   const sdk = new KnowledgeNetSDK({
     userAddress: userAddress || ''
   });
-
-  const connectWallet = async () => {
-    try {
-      setIsConnecting(true);
-      const address = await web3Service.connectWallet();
-      setUserAddress(address);
-      toast.success('Wallet connected successfully');
-    } catch (error: any) {
-      console.error('Wallet connection error:', error);
-      toast.error('Failed to connect wallet: ' + error.message);
-    } finally {
-      setIsConnecting(false);
-    }
-  };
 
   const handleSearch = async () => {
     try {

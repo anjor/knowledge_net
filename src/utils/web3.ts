@@ -30,12 +30,46 @@ export class Web3Service {
     }
 
     await this.provider.send('eth_requestAccounts', []);
+    
+    // Switch to Filecoin network if needed
+    await this.switchToFilecoinNetwork();
+    
     this.signer = await this.provider.getSigner();
     
     // Connect contracts with signer
     await this.connectContracts();
     
     return await this.signer.getAddress();
+  }
+  
+  private async switchToFilecoinNetwork() {
+    try {
+      await this.provider!.send('wallet_switchEthereumChain', [
+        { chainId: '0x4CB2F' } // 314159 in hex (Calibration testnet)
+      ]);
+    } catch (switchError: any) {
+      // If the network doesn't exist, add it
+      if (switchError.code === 4902) {
+        try {
+          await this.provider!.send('wallet_addEthereumChain', [{
+            chainId: '0x4CB2F',
+            chainName: 'Filecoin Calibration',
+            nativeCurrency: {
+              name: 'Test Filecoin',
+              symbol: 'tFIL',
+              decimals: 18,
+            },
+            rpcUrls: ['https://api.calibration.node.glif.io/rpc/v1'],
+            blockExplorerUrls: ['https://calibration.filscan.io/'],
+          }]);
+        } catch (addError) {
+          console.error('Error adding Filecoin network:', addError);
+          throw new Error('Failed to add Filecoin network to wallet');
+        }
+      } else {
+        throw switchError;
+      }
+    }
   }
 
   private async connectContracts() {

@@ -133,11 +133,12 @@ export class KnowledgeNetSDK {
       })
     });
 
-    if (!response.ok) {
-      throw new Error(`Query failed: ${response.statusText}`);
+    const result = await response.json();
+    
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || `Query failed: ${response.statusText}`);
     }
 
-    const result = await response.json();
     return result;
   }
 
