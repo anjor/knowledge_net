@@ -9,7 +9,7 @@ declare global {
 }
 
 export class Web3Service {
-  private provider: ethers.providers.Web3Provider | null = null;
+  private provider: ethers.BrowserProvider | ethers.JsonRpcProvider | null = null;
   private signer: ethers.Signer | null = null;
   private marketplaceContract: ethers.Contract | null = null;
   private reputationContract: ethers.Contract | null = null;
@@ -20,7 +20,7 @@ export class Web3Service {
 
   private initializeProvider() {
     if (typeof window !== 'undefined' && window.ethereum) {
-      this.provider = new ethers.providers.Web3Provider(window.ethereum);
+      this.provider = new ethers.BrowserProvider(window.ethereum);
     }
   }
 
@@ -30,7 +30,7 @@ export class Web3Service {
     }
 
     await this.provider.send('eth_requestAccounts', []);
-    this.signer = this.provider.getSigner();
+    this.signer = await this.provider.getSigner();
     
     // Connect contracts with signer
     await this.connectContracts();
@@ -40,12 +40,12 @@ export class Web3Service {
 
   private async connectContracts() {
     if (!this.provider && typeof window !== 'undefined' && window.ethereum) {
-      this.provider = new ethers.providers.Web3Provider(window.ethereum);
+      this.provider = new ethers.BrowserProvider(window.ethereum);
     }
     
     if (!this.provider) {
       // Fallback to JSON RPC provider for read operations
-      this.provider = new ethers.providers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
+      this.provider = new ethers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
     }
 
     const signer = this.signer || this.provider;
@@ -76,7 +76,7 @@ export class Web3Service {
       license: string;
     },
     priceInWei: string
-  ): Promise<ethers.ContractTransaction> {
+  ): Promise<ethers.ContractTransactionResponse> {
     if (!this.marketplaceContract || !this.signer) {
       throw new Error('Contract not connected');
     }
@@ -93,7 +93,7 @@ export class Web3Service {
     );
   }
 
-  async purchaseDataset(datasetId: string, priceInWei: string): Promise<ethers.ContractTransaction> {
+  async purchaseDataset(datasetId: string, priceInWei: string): Promise<ethers.ContractTransactionResponse> {
     // Ensure wallet and contracts are connected
     if (!this.signer || !this.marketplaceContract) {
       // Try to reconnect
@@ -110,24 +110,11 @@ export class Web3Service {
     }
 
 
-    // Let MetaMask estimate gas first
-    try {
-      const gasEstimate = await this.marketplaceContract.estimateGas.purchaseDataset(datasetId, {
-        value: priceInWei
-      });
-      console.log('Gas estimate:', gasEstimate.toString());
-      
-      return await this.marketplaceContract.purchaseDataset(datasetId, {
-        value: priceInWei,
-        gasLimit: gasEstimate.mul(120).div(100) // Add 20% buffer
-      });
-    } catch (gasError) {
-      console.log('Gas estimation failed, using fixed limit');
-      return await this.marketplaceContract.purchaseDataset(datasetId, {
-        value: priceInWei,
-        gasLimit: 30000000 // Fallback gas limit
-      });
-    }
+    // Use fixed gas limit for Filecoin
+    return await this.marketplaceContract.purchaseDataset(datasetId, {
+      value: priceInWei,
+      gasLimit: 35000000 // Fixed gas limit for Filecoin
+    });
   }
 
   async getDataset(datasetId: string): Promise<any> {
@@ -160,7 +147,7 @@ export class Web3Service {
     }
 
     const total = await this.marketplaceContract.getTotalDatasets();
-    return total.toNumber();
+    return Number(total);
   }
 
   async getDatasetsByContributor(contributor: string): Promise<string[]> {
@@ -215,7 +202,7 @@ export class Web3Service {
     datasetId: string,
     qualityScore: number,
     comments: string
-  ): Promise<ethers.ContractTransaction> {
+  ): Promise<ethers.ContractTransactionResponse> {
     if (!this.reputationContract || !this.signer) {
       throw new Error('Contract not connected');
     }
@@ -224,7 +211,7 @@ export class Web3Service {
       datasetId,
       qualityScore,
       comments,
-      { value: ethers.utils.parseEther('0.1') } // Stake amount
+      { value: ethers.parseEther('0.1') } // Stake amount
     );
   }
 
@@ -235,15 +222,15 @@ export class Web3Service {
     }
 
     const balance = await this.provider.getBalance(address);
-    return ethers.utils.formatEther(balance);
+    return ethers.formatEther(balance);
   }
 
   formatPrice(priceInWei: string): string {
-    return ethers.utils.formatEther(priceInWei);
+    return ethers.formatEther(priceInWei);
   }
 
   parsePrice(priceInFIL: string): string {
-    return ethers.utils.parseEther(priceInFIL).toString();
+    return ethers.parseEther(priceInFIL).toString();
   }
 
   // Event Listeners

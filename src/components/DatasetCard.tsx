@@ -45,8 +45,7 @@ export const DatasetCard: React.FC<DatasetCardProps> = ({
     try {
       // Real blockchain transaction
       const priceInWei = parsePrice(dataset.price);
-      const tx = await purchaseDataset(dataset.id, priceInWei);
-      const txHash = tx.hash;
+      const txHash = await purchaseDataset(dataset.id, priceInWei);
 
       setToast({
         show: true,

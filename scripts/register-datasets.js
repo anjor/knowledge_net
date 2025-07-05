@@ -8,14 +8,14 @@ async function main() {
   console.log("🔄 Registering sample datasets in the KnowledgeMarketplace contract...\n");
 
   // Create provider and wallet
-  const provider = new ethers.providers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
+  const provider = new ethers.JsonRpcProvider("https://api.calibration.node.glif.io/rpc/v1");
   const deployer = new ethers.Wallet(`0x${process.env.PRIVATE_KEY}`, provider);
   
   console.log("Deployer address:", deployer.address);
   
   // Check balance
   const balance = await deployer.getBalance();
-  console.log("Account balance:", ethers.utils.formatEther(balance), "tFIL\n");
+  console.log("Account balance:", ethers.formatEther(balance), "tFIL\n");
 
   // Connect to the deployed contract
   const marketplace = new ethers.Contract(
@@ -30,7 +30,7 @@ async function main() {
       id: "dataset_001",
       ipfsHash: "QmMockabcdef123456789abcdef123456789abcdef12345671",
       metadataHash: "QmMetadata001...",
-      price: ethers.utils.parseEther("0.05"), // 0.05 FIL
+      price: ethers.parseEther("0.05"), // 0.05 FIL
       metadata: {
         name: "Medical Image Dataset",
         description: "Curated collection of medical imaging data for AI training",
@@ -44,7 +44,7 @@ async function main() {
       id: "dataset_002", 
       ipfsHash: "QmMockabcdef123456789abcdef123456789abcdef12345672",
       metadataHash: "QmMetadata002...",
-      price: ethers.utils.parseEther("0.03"), // 0.03 FIL
+      price: ethers.parseEther("0.03"), // 0.03 FIL
       metadata: {
         name: "Climate Data Collection",
         description: "Global climate measurements and predictions",
@@ -58,7 +58,7 @@ async function main() {
       id: "dataset_003",
       ipfsHash: "QmMockabcdef123456789abcdef123456789abcdef12345673", 
       metadataHash: "QmMetadata003...",
-      price: ethers.utils.parseEther("0.1"), // 0.1 FIL
+      price: ethers.parseEther("0.1"), // 0.1 FIL
       metadata: {
         name: "Financial Market Data",
         description: "Real-time and historical financial market data",
@@ -76,7 +76,7 @@ async function main() {
     try {
       console.log(`Registering: ${dataset.metadata.name}`);
       console.log(`  ID: ${dataset.id}`);
-      console.log(`  Price: ${ethers.utils.formatEther(dataset.price)} FIL`);
+      console.log(`  Price: ${ethers.formatEther(dataset.price)} FIL`);
       console.log(`  IPFS: ${dataset.ipfsHash}`);
 
       // Check if dataset already exists
@@ -104,7 +104,7 @@ async function main() {
       // Wait for confirmation
       const receipt = await tx.wait();
       console.log(`  ✅ Confirmed in block: ${receipt.blockNumber}`);
-      console.log(`  💰 Gas used: ${receipt.gasUsed.toString()}\n`);
+      console.log(`  💰 Gas used: ${Number(receipt.gasUsed)}\n`);
 
     } catch (error) {
       console.error(`  ❌ Failed to register ${dataset.id}:`, error.message);
@@ -124,7 +124,7 @@ async function main() {
       } else {
         console.log(`✅ ${dataset.id}: Registered`);
         console.log(`   Contributor: ${registeredDataset.contributor}`);
-        console.log(`   Price: ${ethers.utils.formatEther(registeredDataset.price)} FIL`);
+        console.log(`   Price: ${ethers.formatEther(registeredDataset.price)} FIL`);
         console.log(`   IPFS: ${registeredDataset.ipfsHash}`);
         console.log(`   Verified: ${registeredDataset.verified}`);
         console.log("");
@@ -136,7 +136,7 @@ async function main() {
 
   // Check total datasets
   const totalDatasets = await marketplace.getTotalDatasets();
-  console.log(`📊 Total datasets in marketplace: ${totalDatasets.toString()}\n`);
+  console.log(`📊 Total datasets in marketplace: ${Number(totalDatasets)}\n`);
 
   console.log("🎉 Dataset registration completed!");
   console.log("You can now test real blockchain purchases in the frontend!");

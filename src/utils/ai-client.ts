@@ -183,5 +183,3 @@ export function createKnowledgeNetClient(config: KnowledgeNetConfig): KnowledgeN
   return new KnowledgeNetClient(config);
 }
 
-// Type exports for convenience
-export type { QueryOptions, PurchaseOptions, KnowledgeNetConfig };

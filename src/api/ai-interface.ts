@@ -382,11 +382,13 @@ class AIInterface {
    */
   cleanupExpiredTokens(): void {
     const now = Date.now();
-    for (const [key, access] of this.accessTokens.entries()) {
+    const keysToDelete: string[] = [];
+    this.accessTokens.forEach((access, key) => {
       if (now > access.validUntil) {
-        this.accessTokens.delete(key);
+        keysToDelete.push(key);
       }
-    }
+    });
+    keysToDelete.forEach(key => this.accessTokens.delete(key));
   }
 }
 

@@ -21,7 +21,7 @@ async function main() {
         console.log("Deployer address:", deployer.address);
         
         const balance = await deployer.getBalance();
-        console.log("Balance:", hre.ethers.utils.formatEther(balance), "tFIL");
+        console.log("Balance:", hre.ethers.formatEther(balance), "tFIL");
         
         if (network.chainId === 314159) {
           console.log("✅ Successfully connected to Filecoin Calibration testnet!");
