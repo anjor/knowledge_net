@@ -63,7 +63,7 @@ export class KnowledgeNetSDK {
     apiKey: string;
     userAddress?: string;
   }) {
-    this.baseUrl = config.baseUrl || 'http://localhost:3000';
+    this.baseUrl = config.baseUrl || (typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000');
     this.apiKey = config.apiKey;
     this.userAddress = config.userAddress;
   }
