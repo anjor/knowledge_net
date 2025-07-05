@@ -28,7 +28,7 @@ Get KnowledgeNet running in under 5 minutes:
 
 ```bash
 # Clone and install
-git clone https://github.com/your-username/knowledgenet
+git clone https://github.com/anjor/knowledge_net
 cd knowledgenet
 npm install
 
@@ -278,8 +278,8 @@ This project is licensed under the [MIT License](./LICENSE) - see the LICENSE fi
 ## 🔗 Links
 
 - **📖 Documentation**: [./docs/](./docs/)
-- **🐛 Report Issues**: [GitHub Issues](https://github.com/your-username/knowledgenet/issues)
-- **💬 Discussions**: [GitHub Discussions](https://github.com/your-username/knowledgenet/discussions)
+- **🐛 Report Issues**: [GitHub Issues](https://github.com/anjor/knowledge_net/issues)
+- **💬 Discussions**: [GitHub Discussions](https://github.com/anjor/knowledge_net/discussions)
 
 ## 📈 Roadmap
 
